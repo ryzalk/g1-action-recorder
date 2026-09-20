@@ -41,6 +41,9 @@ spec:
               value: "0.0.0.0"
             - name: VISER_PORT
               value: "8001"
+            # Browser origin for the Viser iframe (Ingress hostname, not pod:8001).
+            - name: VISER_PUBLIC_URL
+              value: "https://g1-3d-viser.chs.gto-stc-aida.com"
             - name: MUJOCO_GL
               value: egl
           startupProbe:

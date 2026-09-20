@@ -10,6 +10,9 @@
 #     -e BYTEPLUS_API_KEY=... \
 #     -p 8000:8000 -p 8001:8001 \
 #     g1-3d
+#
+# Behind a reverse proxy / Ingress where Viser has its own public hostname:
+#   -e VISER_PUBLIC_URL=https://g1-3d-viser.example.com
 
 FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim
 
