@@ -8,7 +8,7 @@ import numpy as np
 
 from component.action_playback.motion_import import MotionImport
 from component.common.g1_joint_schema import G1JointSchema
-from config.settings import PathConfig
+from config.settings import ActionConfig, PathConfig
 
 
 class _RunsCode:
@@ -37,7 +37,7 @@ class MotionImportTest(unittest.TestCase):
         self.assertEqual(trajectory.sample_count, 126)
 
     def test_kimodo_blends_from_and_back_to_home(self) -> None:
-        trajectory, file_format = self.importer.load("k.npz", npz_bytes(global_rot_mats=self.rest), fps=30.0)
+        trajectory, file_format = self.importer.load("k.npz", npz_bytes(global_rot_mats=self.rest))
         self.assertEqual(file_format, "Kimodo NPZ")
         # 30 blend-in samples + 5 motion frames + 30 blend-out samples, sharing the joins.
         self.assertEqual(trajectory.sample_count, 31 + 4 + 30)
@@ -47,8 +47,9 @@ class MotionImportTest(unittest.TestCase):
     def test_kimodo_embedded_fps_and_missing_fps(self) -> None:
         trajectory, _ = self.importer.load("k.npz", npz_bytes(local_rot_mats=self.rest, fps=np.asarray(20.0)))
         self.assertEqual(trajectory.fps, 20.0)
-        with self.assertRaisesRegex(ValueError, "no FPS"):
-            self.importer.load("k.npz", npz_bytes(global_rot_mats=self.rest))
+        # Without one it is read at Kimodo's own 30 fps.
+        trajectory, _ = self.importer.load("k.npz", npz_bytes(global_rot_mats=self.rest))
+        self.assertEqual(trajectory.fps, ActionConfig.KIMODO_FPS)
 
     def test_ardy_session(self) -> None:
         session = {"version": "1.0", "model_fps": 25.0, "skeleton": {"nbjoints": 34},

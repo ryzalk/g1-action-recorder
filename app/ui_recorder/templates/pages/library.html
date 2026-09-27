@@ -9,6 +9,7 @@
       {% endfor %}
     </div>
     <div class="flex gap-x-2">
+      <a id="library-export" href="#" download class="{{ ui.button }} aria-disabled:pointer-events-none aria-disabled:opacity-50" aria-disabled="true" title="One .zip with the ticked actions and every pose they use, laid out like data/">{{ ui.icon("download") }}<span data-label>Export selected</span></a>
       <label for="library-pose-file" class="{{ ui.button }} cursor-pointer">{{ ui.icon("upload") }}Import pose
         <input id="library-pose-file" type="file" accept=".json" class="sr-only" />
       </label>

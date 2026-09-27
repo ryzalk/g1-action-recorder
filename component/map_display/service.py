@@ -76,6 +76,9 @@ class MapDisplay:
     def set_scene_layer(self, name: str, visible: bool) -> None:
         self.scene.set_layer(name, visible)
 
+    def highlight(self, document: MapDocument, outline: list, kind: str) -> None:
+        self.scene.highlight(document, outline, kind)
+
     def focus(self, document: MapDocument, x: float, y: float, distance: float) -> None:
         self.scene.focus(document, x=x, y=y, distance=distance)
 

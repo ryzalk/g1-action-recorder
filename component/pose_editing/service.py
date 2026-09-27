@@ -120,11 +120,19 @@ class PoseService:
                 used.setdefault((PoseType(part_type), part_name), []).append(made["name"])
         return used
 
+    def picture_path(self, pose_type: PoseType, name: str) -> Path:
+        """The pose's picture, beside its file."""
+        path = self._path(pose_type, name).with_suffix(".png")
+        return path
+
     def delete(self, pose_type: PoseType, name: str, trash_dir: Path) -> Path:
-        """Moves the file into trash_dir, keeping its poses/<type>/ path there."""
+        """Moves the file (and its picture) into trash_dir, keeping its poses/<type>/ path there."""
         path = self._path(pose_type, name)
         if not path.exists():
             raise FileNotFoundError(f"No {pose_type.value} pose named {name}")
+        picture = self.picture_path(pose_type, name)
+        if picture.exists():
+            self.files.move(picture, trash_dir / "poses" / pose_type.value / picture.name)
         moved = self.files.move(path, trash_dir / "poses" / pose_type.value / path.name)
         logger.info("Moved pose {} to {}", path, moved)
         return moved

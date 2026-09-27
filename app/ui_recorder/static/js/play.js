@@ -5,9 +5,8 @@ class PlayTab {
     this.savedSelect = document.getElementById("play-saved");
     this.fileInput = document.getElementById("play-file");
     this.drop = document.querySelector('[data-page="play"] [data-drop]');
-    this.fps = document.getElementById("play-fps");
     this.captureName = document.getElementById("capture-name");
-    this.captureButtons = [...document.querySelectorAll('[data-page="play"] [data-capture]')];
+    this.captureButton = document.getElementById("capture-save");
   }
 
   start() {
@@ -18,9 +17,9 @@ class PlayTab {
       event.preventDefault();
       this.load(event.dataTransfer.files[0]);
     });
-    for (const button of this.captureButtons) button.addEventListener("click", () => this.capture(button));
+    this.captureButton.addEventListener("click", () => this.capture());
     document.addEventListener("recorder:playback", (event) => {
-      for (const button of this.captureButtons) button.disabled = event.detail.state !== "paused";
+      this.captureButton.disabled = event.detail.state !== "paused";
     });
     onTabShown("play", () => this.refresh());
   }
@@ -41,23 +40,23 @@ class PlayTab {
   async load(file) {
     if (!file) return;
     const query = new URLSearchParams({ filename: file.name });
-    if (this.fps.value) query.set("fps", this.fps.value);
     const snapshot = await run(null, () => api("POST", `/api/playback/import?${query}`, file));
     this.fileInput.value = "";
     if (snapshot) toast(`Opened ${file.name} as ${snapshot.source} · ${snapshot.count} frames, ${snapshot.duration.toFixed(1)} s. Press play.`);
   }
 
-  async capture(button) {
+  async capture() {
     const name = this.captureName.value.trim();
     if (!name) {
-      toast("Enter a name for the arm pose first", "error");
+      toast("Enter a pose name first", "error");
       this.captureName.focus();
       return;
     }
-    const poseType = button.dataset.capture;
-    const result = await run(button, () => saveOrReplace(name, (overwrite) =>
+    const poseType = document.querySelector('input[name="capture-kind"]:checked').value;
+    const result = await run(this.captureButton, () => saveOrReplace(name, (overwrite) =>
       api("POST", "/api/playback/capture", { pose_type: poseType, name, overwrite })));
-    if (result) toast(`Saved ${result.name} (${poseType === "left_arm" ? "left" : "right"} arm)`);
+    const labels = { left_arm: "left-arm", right_arm: "right-arm", composed: "composed" };
+    if (result) toast(`Saved ${result.name} (${labels[poseType]} pose)`);
   }
 }
 

@@ -157,7 +157,7 @@
       <div class="flex items-start justify-between gap-x-3 border-b border-gray-200 px-5 py-3.5">
         <div>
           <h3 class="text-base font-semibold text-gray-900">Choose a {{ name }} voice <span data-voice-count class="ms-1 text-sm font-normal text-gray-400"></span></h3>
-          <p class="text-xs text-gray-500">{{ "Each voice speaks the language shown; BytePlus warns other languages may fail. Samples are BytePlus's own recordings." if provider == "byteplus" else "The language is the voice's own; MiniMax can still read others with Language set. A sample is made the first time you play it (one short request), then kept." }} <span data-voice-source class="text-gray-400"></span></p>
+          <p class="text-xs text-gray-500">{{ "Each voice speaks the language shown; BytePlus warns other languages may fail. Samples are BytePlus's own recordings." if provider == "byteplus" else "The language is the voice's own; MiniMax can still read others with Language set. Samples are made ahead of time." }} <span data-voice-source class="text-gray-400"></span></p>
         </div>
         <button type="button" data-voice-close class="rounded-md p-1 text-gray-400 hover:bg-gray-100" aria-label="Close">{{ ui.icon("x") }}</button>
       </div>

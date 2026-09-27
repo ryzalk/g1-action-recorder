@@ -51,7 +51,19 @@ class ActionConfig:
     DEFAULT_TRAVEL_SECONDS = 1.0
     # Imported motions blend in from and out to the home pose over this long.
     IMPORT_BLEND_SECONDS = 1.0
+    # Kimodo generates at 30 fps; a Kimodo NPZ that doesn't store its fps is read at this rate.
+    KIMODO_FPS = 30.0
     PLAYBACK_TICK_SECONDS = 0.005
+
+
+
+class PreviewConfig:
+    """Pose pictures (saved beside each pose; Build action's picker): upper body from the front right, 2x size."""
+    WIDTH = 240
+    HEIGHT = 300
+    BACKGROUND_RGB = (243, 244, 246)
+    # MuJoCo free camera; the G1 faces +X, so azimuth 180 looks at its front.
+    CAMERA = {"look_at": (0.0, 0.0, 1.02), "distance": 1.8, "azimuth": 160.0, "elevation": -8.0}
 
 
 class ViewerConfig:
@@ -237,6 +249,11 @@ class MapViewerConfig:
     PREVIEW_LIMIT = 200_000
     PREVIEW_COLOR = (255, 0, 0)
     PROTECTED_COLOR = (255, 0, 255)
+    # The candidate picked on the Check tab: a fence from the floor to this height, in its kind's colour.
+    HIGHLIGHT_HEIGHT_REL = 1.8
+    HIGHLIGHT_THICKNESS = 0.05
+    # Brighter than the 2D colours: they must stand out from the height-coloured points.
+    HIGHLIGHT_COLORS = {"ghost": (240, 60, 255), "missing": (0, 190, 255)}
 
 
 def demo_settings() -> None:

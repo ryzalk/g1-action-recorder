@@ -10,8 +10,11 @@ class LibraryTab {
     this.tabs = [...document.querySelectorAll("[data-library-tab]")];
     this.poseFile = document.getElementById("library-pose-file");
     this.actionFile = document.getElementById("library-action-file");
+    this.exportLink = document.getElementById("library-export");
     this.kind = "actions";
     this.listing = null;
+    // Actions ticked for export; kept while the page is open.
+    this.selected = new Set();
   }
 
   start() {
@@ -28,6 +31,8 @@ class LibraryTab {
 
   async refresh() {
     this.listing = await api("GET", "/api/library");
+    const names = new Set(this.listing.actions.map((action) => action.name));
+    for (const name of this.selected) if (!names.has(name)) this.selected.delete(name);
     this.render();
   }
 
@@ -38,9 +43,11 @@ class LibraryTab {
       tab.dataset.active = String(kind === this.kind);
       tab.querySelector("[data-count]").textContent = (kind === "actions" ? listing.actions : listing.poses[kind]).length;
     }
+    this.exportLink.hidden = this.kind !== "actions";
     if (this.kind === "actions") {
-      this.table(["Name", "Poses", "Length", "Compiled", ""], listing.actions.map((action) => this.actionRow(action)));
-      this.note.textContent = "An action exports as a .zip with its poses inside; Import action takes that .zip.";
+      this.table([[this.selectAllBox(), "Name"], "Poses", "Length", "Compiled", ""], listing.actions.map((action) => this.actionRow(action)));
+      this.note.textContent = "Tick one, several or all actions and Export selected: one .zip with actions/ and poses/ laid out like data/. Import action takes that .zip.";
+      this.showSelection();
       return;
     }
     const poses = listing.poses[this.kind];
@@ -52,7 +59,9 @@ class LibraryTab {
   table(columns, rows) {
     const head = document.createElement("tr");
     columns.forEach((title, index) => {
-      const cell = Object.assign(document.createElement("th"), { textContent: title });
+      const cell = document.createElement("th");
+      if (typeof title === "string") cell.textContent = title;
+      else cell.append(this.withBox(title[0], title[1]));
       cell.className = `px-4 py-2.5 font-semibold ${index === columns.length - 1 ? "text-end" : "text-start"}`;
       head.append(cell);
     });
@@ -103,14 +112,64 @@ class LibraryTab {
     return button;
   }
 
+  // ---- choosing actions to export together ----
+  checkbox(label) {
+    const box = Object.assign(document.createElement("input"), { type: "checkbox" });
+    box.className = "size-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500";
+    box.setAttribute("aria-label", label);
+    return box;
+  }
+
+  withBox(box, text) {
+    const wrap = document.createElement("label");
+    wrap.className = "flex cursor-pointer items-center gap-x-3";
+    wrap.append(box, Object.assign(document.createElement("span"), { textContent: text }));
+    return wrap;
+  }
+
+  selectAllBox() {
+    const box = this.checkbox("Select all actions");
+    box.dataset.selectAll = "";
+    box.addEventListener("change", () => {
+      for (const action of this.listing.actions) {
+        if (box.checked) this.selected.add(action.name);
+        else this.selected.delete(action.name);
+      }
+      for (const row of this.rows.querySelectorAll("[data-select]")) row.checked = box.checked;
+      this.showSelection();
+    });
+    return box;
+  }
+
+  showSelection() {
+    const names = this.listing.actions.map((action) => action.name).filter((name) => this.selected.has(name));
+    const all = this.head.querySelector("[data-select-all]");
+    if (all) {
+      all.checked = names.length > 0 && names.length === this.listing.actions.length;
+      all.indeterminate = names.length > 0 && !all.checked;
+    }
+    this.exportLink.setAttribute("aria-disabled", String(names.length === 0));
+    this.exportLink.querySelector("[data-label]").textContent = names.length ? `Export selected (${names.length})` : "Export selected";
+    const query = new URLSearchParams(names.map((name) => ["names", name]));
+    this.exportLink.href = names.length ? `/api/library/actions/export?${query}` : "#";
+  }
+
   actionRow(action) {
+    const box = this.checkbox(`Select ${action.name}`);
+    box.dataset.select = action.name;
+    box.checked = this.selected.has(action.name);
+    box.addEventListener("change", () => {
+      if (box.checked) this.selected.add(action.name);
+      else this.selected.delete(action.name);
+      this.showSelection();
+    });
     const exportLink = Object.assign(document.createElement("a"), {
       href: `/api/library/actions/${encodeURIComponent(action.name)}/export`, download: `${action.name}.zip`, textContent: "Export",
     });
     exportLink.className = "rounded-lg px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100";
     const remove = this.button("Delete", "text-red-600", (button) => this.deleteAction(button, action.name));
     const compiled = action.compiled ? this.badge("✓ Compiled", "bg-green-50 text-green-700") : this.badge("Not compiled", "bg-amber-50 text-amber-700");
-    return this.row([action.name, String(action.poses), `${action.seconds.toFixed(1)} s`, [compiled], [exportLink, remove]]);
+    return this.row([[this.withBox(box, action.name)], String(action.poses), `${action.seconds.toFixed(1)} s`, [compiled], [exportLink, remove]]);
   }
 
   poseRow(pose) {
@@ -170,13 +229,21 @@ class LibraryTab {
   }
 
   actionMessage(result) {
-    if (result.status === "unchanged" && result.poses_added.length === 0) return `${result.name} is already saved, nothing changed`;
-    const count = (names, verb) => `${names.length} pose${names.length === 1 ? "" : "s"} ${verb}`;
-    const poses = [];
-    if (result.poses_added.length) poses.push(count(result.poses_added, "added"));
-    if (result.poses_replaced.length) poses.push(count(result.poses_replaced, "replaced"));
-    const verb = { added: "Added", replaced: "Replaced", unchanged: "Kept" }[result.status];
-    return `${verb} ${result.name}${poses.length ? ` · ${poses.join(", ")}` : ""}`;
+    const names = result.actions.map((action) => action.name);
+    const what = names.length === 1 ? names[0] : `${names.length} actions`;
+    if (result.status === "unchanged" && result.poses_added.length === 0) return `${what} ${names.length === 1 ? "is" : "are"} already saved, nothing changed`;
+    const count = (items, verb) => `${items.length} pose${items.length === 1 ? "" : "s"} ${verb}`;
+    const parts = [];
+    if (names.length > 1) {
+      for (const verb of ["added", "replaced", "unchanged"]) {
+        const n = result.actions.filter((action) => action.status === verb).length;
+        if (n) parts.push(`${n} ${verb === "unchanged" ? "kept" : verb}`);
+      }
+    }
+    if (result.poses_added.length) parts.push(count(result.poses_added, "added"));
+    if (result.poses_replaced.length) parts.push(count(result.poses_replaced, "replaced"));
+    const verb = names.length > 1 ? "Imported" : { added: "Added", replaced: "Replaced", unchanged: "Kept" }[result.status];
+    return `${verb} ${what}${parts.length ? ` · ${parts.join(", ")}` : ""}`;
   }
 }
 

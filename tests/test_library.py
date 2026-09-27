@@ -84,7 +84,7 @@ class LibraryTest(unittest.TestCase):
         self.assertEqual(self.application.imports.home_arms[elbow], 0.3)
 
     def test_action_zip_round_trip(self) -> None:
-        bundle = self.application.actions.export_bundle(WAVE)
+        bundle = self.application.actions.export_bundle([WAVE])
         names = set(DataFileHelper().unpack(bundle))
         self.assertTrue({f"actions/definitions/{WAVE}.json", f"actions/trajectories/{WAVE}.npz",
                          f"poses/composed/{WAVE}.json", "poses/base/concierge_init.json"} <= names, names)
@@ -101,6 +101,29 @@ class LibraryTest(unittest.TestCase):
             self.application.import_action("wave.zip", bundle)
         result = self.application.import_action("wave.zip", bundle, overwrite=True)
         self.assertEqual((result["status"], result["poses_replaced"]), ("replaced", [WAVE]))
+
+    def test_many_actions_in_one_zip(self) -> None:
+        names = self.application.actions.names()
+        self.assertGreater(len(names), 1)
+        bundle = self.application.actions.export_bundle(names)
+        files = DataFileHelper().unpack(bundle)
+        # One zip laid out like data/: every definition with its trajectory, the poses they share once.
+        self.assertEqual(sorted(path for path in files if path.startswith("actions/definitions/")),
+                         sorted(f"actions/definitions/{name}.json" for name in names))
+        self.assertEqual(sorted(path for path in files if path.startswith("actions/trajectories/")),
+                         sorted(f"actions/trajectories/{name}.npz" for name in names))
+        self.assertIn("poses/base/concierge_init.json", files)
+        self.assertIn("poses/base/concierge_init.png", files)
+        self.assertFalse(any(path.endswith(".zip") for path in files))
+        result = self.application.import_action("all.zip", bundle)
+        self.assertEqual(result["status"], "unchanged")
+        self.assertEqual([entry["name"] for entry in result["actions"]], sorted(names))
+        for name in names[:2]:
+            self.application.delete_action(name)
+        result = self.application.import_action("all.zip", bundle)
+        statuses = {entry["name"]: entry["status"] for entry in result["actions"]}
+        self.assertEqual([statuses[name] for name in names[:2]], ["added", "added"])
+        self.assertEqual(sorted(self.application.actions.names()), sorted(names))
 
     def test_bad_action_zips(self) -> None:
         files = DataFileHelper()
@@ -120,13 +143,13 @@ class LibraryTest(unittest.TestCase):
         # An action whose NPZ went missing still exports whole: the trajectory is compiled into the zip.
         stored = self.application.actions.load_trajectory(WAVE).joint_positions
         self.application.actions.trajectory_path(WAVE).unlink()
-        files = DataFileHelper().unpack(self.application.actions.export_bundle(WAVE))
+        files = DataFileHelper().unpack(self.application.actions.export_bundle([WAVE]))
         arrays = DataFileHelper().read_npz_bytes(files[f"actions/trajectories/{WAVE}.npz"])
         np.testing.assert_allclose(arrays["joint_positions"], stored, atol=1e-9)
 
     def test_older_action_zip_still_imports(self) -> None:
         files = DataFileHelper()
-        new = files.unpack(self.application.actions.export_bundle(WAVE))
+        new = files.unpack(self.application.actions.export_bundle([WAVE]))
         old = {("action.json" if path.startswith("actions/definitions/") else
                 "trajectory.npz" if path.startswith("actions/trajectories/") else path): data
                for path, data in new.items()}

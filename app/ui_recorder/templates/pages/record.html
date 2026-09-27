@@ -1,5 +1,5 @@
 {% import "ui.html" as ui %}
-<section data-page="record" data-title="Record pose" data-hint="Drag the sliders to pose the robot, then save it as a base pose or one arm." class="hidden min-h-0 flex-1 flex-col">
+<section data-page="record" data-title="Record pose" data-hint="Drag the sliders to pose the robot, then save one arm or the whole robot as a composed pose." class="hidden min-h-0 flex-1 flex-col">
   <div class="{{ ui.panel }}">
     <div class="shrink-0 border-b border-gray-200 p-4">
       <div class="flex gap-x-2">
@@ -18,23 +18,32 @@
         <div class="flex items-center gap-x-2 border-b border-gray-200 px-4 py-2.5 group-data-[collapsed=true]/card:border-b-0">
           <span class="size-2 rounded-full {{ {'gray': 'bg-gray-500', 'blue': 'bg-blue-600', 'orange': 'bg-orange-500'}[color] }}"></span>
           <h3 class="{{ ui.card_title }} whitespace-nowrap group-data-[collapsed=true]/card:text-gray-400">{{ title }}</h3>
+          <span data-unsaved-note class="hidden whitespace-nowrap rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-500 group-data-[unsaved=true]/card:inline"></span>
           <span data-collapsed-note class="ms-auto hidden text-xs text-gray-400 group-data-[collapsed=true]/card:inline"></span>
           <div class="ms-auto flex gap-x-1 group-data-[collapsed=true]/card:hidden">
             {% if other %}
             <button type="button" class="{{ ui.ghost }}" data-mirror="{{ group }}" title="Copy to the {{ other }} arm, mirrored">{{ ui.icon("swap", "size-3.5") }}<span class="max-xl:hidden">Copy to {{ other }} arm</span><span class="xl:hidden">To {{ other }}</span></button>
             {% endif %}
+            {% if group != "waist" %}
             <button type="button" class="{{ ui.ghost }}" data-reset="{{ group }}" title="Back to {{ home }}">{{ ui.icon("reset", "size-3.5") }}Reset</button>
+            {% endif %}
           </div>
         </div>
         <div class="space-y-2 px-4 py-3 group-data-[collapsed=true]/card:hidden">
           {% for row in joint_rows if row.group == group %}
-          <div class="grid grid-cols-[5.5rem_minmax(0,1fr)_4.75rem] items-center gap-x-2 xl:grid-cols-[7rem_minmax(0,1fr)_5.5rem] xl:gap-x-3" data-joint="{{ row.name }}" data-home="{{ row.home }}">
+          <div class="grid grid-cols-[5.5rem_minmax(0,1fr)_4.75rem_1.5rem] items-center gap-x-2 xl:grid-cols-[7rem_minmax(0,1fr)_5.5rem_1.5rem] xl:gap-x-3" data-joint="{{ row.name }}" data-home="{{ row.home }}">
             <label for="slider-{{ row.name }}" class="truncate text-[13px] text-gray-700">{{ row.label }}</label>
-            <input id="slider-{{ row.name }}" type="range" min="{{ row.lower_deg }}" max="{{ row.upper_deg }}" step="0.1" class="h-1.5 w-full {{ {'gray': 'accent-gray-500', 'blue': 'accent-blue-600', 'orange': 'accent-orange-500'}[color] }}" data-slider />
+            {# The waist comes from the base pose: shown, never adjusted here. #}
+            <input id="slider-{{ row.name }}" type="range" min="{{ row.lower_deg }}" max="{{ row.upper_deg }}" step="0.1" class="h-1.5 w-full disabled:cursor-not-allowed disabled:opacity-60 {{ {'gray': 'accent-gray-500', 'blue': 'accent-blue-600', 'orange': 'accent-orange-500'}[color] }}" data-slider{% if group == "waist" %} disabled{% endif %} />
             <div class="relative">
-              <input type="number" min="{{ row.lower_deg }}" max="{{ row.upper_deg }}" step="0.1" class="{{ ui.small_input }} w-full py-1.5 pe-6 text-[13px]" aria-label="{{ title }} {{ row.label }} in degrees" data-number />
+              <input type="number" min="{{ row.lower_deg }}" max="{{ row.upper_deg }}" step="0.1" class="{{ ui.small_input }} w-full py-1.5 pe-6 text-[13px] disabled:bg-gray-50 disabled:text-gray-500" aria-label="{{ title }} {{ row.label }} in degrees" data-number{% if group == "waist" %} disabled{% endif %} />
               <span class="pointer-events-none absolute end-2.5 top-1.5 text-[13px] text-gray-400">°</span>
             </div>
+            {% if group == "waist" %}
+            <span class="flex size-6 items-center justify-center text-gray-300" title="Set by the base pose">{{ ui.icon("lock", "size-3.5") }}</span>
+            {% else %}
+            <button type="button" class="flex size-6 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-900 disabled:pointer-events-none disabled:opacity-30" data-joint-reset title="Back to {{ home }}" aria-label="Reset {{ title }} {{ row.label }} to {{ home }}">{{ ui.icon("reset", "size-3.5") }}</button>
+            {% endif %}
           </div>
           {% endfor %}
         </div>
@@ -45,7 +54,7 @@
     <div class="shrink-0 space-y-2.5 border-t border-gray-200 px-4 py-3">
       <div class="flex items-center gap-x-2.5">
         <span class="w-14 shrink-0 text-[13px] font-medium text-gray-700">Save as</span>
-        {{ ui.save_as_choice("record-kind") }}
+        {{ ui.save_as_choice("record-kind", [("left_arm", "Left arm", "bg-blue-600"), ("right_arm", "Right arm", "bg-orange-500"), ("composed", "Composed", "bg-violet-600")]) }}
       </div>
       <div class="flex items-center gap-x-2.5">
         <label for="record-name" class="w-14 shrink-0 text-[13px] font-medium text-gray-700">Name</label>

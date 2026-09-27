@@ -12,9 +12,10 @@ let mapCandidates = [];
 let candidateKind = "ghost";
 let selectedCandidate = null;
 
+// Colours no layer uses (the projection is red, changes teal/orange/violet), so candidates never blend in.
 const CANDIDATE_STYLE = {
-  ghost: { stroke: "#dc2626", fill: "rgba(220, 38, 38, 0.18)", name: "ghosts", verb: "Clear", tool: "candidate_erase" },
-  missing: { stroke: "#d97706", fill: "rgba(217, 119, 6, 0.2)", name: "gaps", verb: "Fill", tool: "candidate_fill" },
+  ghost: { stroke: "#c026d3", fill: "rgba(192, 38, 211, 0.30)", name: "ghosts", label: "ghost", verb: "Clear", tool: "candidate_erase" },
+  missing: { stroke: "#2563eb", fill: "rgba(37, 99, 235, 0.30)", name: "gaps", label: "gap", verb: "Fill", tool: "candidate_fill" },
 };
 const CANDIDATE_NOTES = {
   ghost: "Obstacles in the grid with no points near them: usually people or carts that moved while mapping. Hints only; nothing changes until you clear one.",
@@ -136,28 +137,100 @@ function showCandidates() {
   }));
 }
 
+// Only the kind being checked is drawn. Each area gets a white halo so it reads on black walls and on the
+// point projection; one too small to see at this zoom gets a ring round it. A picked one is spotlit: the
+// rest of the map dims, the area gets a thick outline and a label.
 function drawCandidates(context) {
+  const picked = mapCandidates.find((candidate) => candidate.id === selectedCandidate);
   for (const candidate of mapCandidates) {
-    const style = CANDIDATE_STYLE[candidate.kind];
-    const selected = candidate.id === selectedCandidate;
-    context.save();
-    context.beginPath();
-    candidate.polygon.forEach(([x, y], index) => {
-      const screen = worldToScreen(x, y);
-      if (index === 0) context.moveTo(screen.x, screen.y);
-      else context.lineTo(screen.x, screen.y);
-    });
-    context.closePath();
-    if (selected) {
-      context.fillStyle = style.fill;
-      context.fill();
-    }
+    if (candidate.kind === candidateKind && candidate !== picked) drawCandidate(context, candidate, picked ? "other" : "all");
+  }
+  if (!picked) return;
+  const rect = mapViewport.getBoundingClientRect();
+  const box = candidateBox(picked);
+  const margin = Math.max(28, 0.8 / mapView.resolution * mapView.zoom);
+  context.save();
+  context.beginPath();
+  context.rect(0, 0, rect.width, rect.height);
+  context.roundRect(box.left - margin, box.top - margin, box.width + margin * 2, box.height + margin * 2, 12);
+  context.fillStyle = "rgba(17, 24, 39, 0.55)";
+  context.fill("evenodd");
+  context.restore();
+  drawCandidate(context, picked, "picked");
+  const style = CANDIDATE_STYLE[picked.kind];
+  const text = `#${picked.id} ${style.label} · ${picked.cells} cells · ${picked.size_m.toFixed(1)} m`;
+  context.save();
+  context.font = "600 12px ui-sans-serif, system-ui, sans-serif";
+  const width = context.measureText(text).width + 16;
+  const x = Math.min(Math.max(8, box.left + box.width / 2 - width / 2), rect.width - width - 8);
+  const y = Math.max(8, box.top - margin - 30);
+  context.fillStyle = style.stroke;
+  context.beginPath();
+  context.roundRect(x, y, width, 22, 11);
+  context.fill();
+  context.fillStyle = "#ffffff";
+  context.fillText(text, x + 8, y + 15);
+  context.restore();
+}
+
+function candidateBox(candidate) {
+  const points = candidate.polygon.map(([x, y]) => worldToScreen(x, y));
+  const xs = points.map((point) => point.x);
+  const ys = points.map((point) => point.y);
+  const box = { left: Math.min(...xs), top: Math.min(...ys), width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) };
+  return box;
+}
+
+// look: "all" (nothing picked), "picked", or "other" (thin dashed, no fill, so the picked one stands alone).
+function drawCandidate(context, candidate, look) {
+  const style = CANDIDATE_STYLE[candidate.kind];
+  const picked = look === "picked";
+  context.save();
+  context.beginPath();
+  candidate.polygon.forEach(([x, y], index) => {
+    const screen = worldToScreen(x, y);
+    if (index === 0) context.moveTo(screen.x, screen.y);
+    else context.lineTo(screen.x, screen.y);
+  });
+  context.closePath();
+  if (look === "other") {
+    context.setLineDash([4, 4]);
     context.strokeStyle = style.stroke;
-    context.lineWidth = selected ? 2.5 : 1.2;
-    context.setLineDash(candidate.kind === candidateKind || selected ? [] : [3, 3]);
+    context.lineWidth = 1.2;
     context.stroke();
     context.restore();
+    return;
   }
+  context.fillStyle = style.fill;
+  context.fill();
+  context.lineJoin = "round";
+  context.strokeStyle = "#ffffff";
+  context.lineWidth = picked ? 7 : 4;
+  context.stroke();
+  context.strokeStyle = style.stroke;
+  context.lineWidth = picked ? 3.5 : 2;
+  context.stroke();
+  const box = candidateBox(candidate);
+  if (Math.max(box.width, box.height) < 14) {
+    context.beginPath();
+    context.arc(box.left + box.width / 2, box.top + box.height / 2, picked ? 14 : 9, 0, Math.PI * 2);
+    context.strokeStyle = "#ffffff";
+    context.lineWidth = 4;
+    context.stroke();
+    context.strokeStyle = style.stroke;
+    context.lineWidth = 2;
+    context.stroke();
+  }
+  context.restore();
+}
+
+// Back to seeing every candidate of the kind (Esc, another kind, leaving the Check tab).
+function clearCandidate() {
+  if (selectedCandidate === null) return;
+  selectedCandidate = null;
+  showCandidates();
+  drawOverlay();
+  api("POST", "/api/map/highlight", { outline: [] });
 }
 
 // The map zooms onto the candidate and the 3D view flies there too.
@@ -172,6 +245,7 @@ async function locateCandidate(candidate) {
   mapView.autoFit = false;
   applyTransform();
   showCandidates();
+  await api("POST", "/api/map/highlight", { outline: candidate.polygon, kind: candidate.kind });
   await api("POST", "/api/map/focus", { x: candidate.centre[0], y: candidate.centre[1], distance: Math.max(4, candidate.size_m * 3) });
 }
 
@@ -321,7 +395,7 @@ async function redoEdit() {
 async function afterChange(result) {
   showHistory(result.history);
   await refreshMapLayers();
-  selectedCandidate = null;
+  clearCandidate();
   await refreshCandidates();
   showMapInfo(await api("GET", "/api/map"));
 }
@@ -486,6 +560,7 @@ function bindShortcuts() {
     else if (key === "enter" && pendingShape) runInOrder(confirmEdit);
     else if (key === "enter" && toolPoints.length > 0) finishShape();
     else if (key === "escape" && pendingShape) runInOrder(cancelEdit);
+    else if (key === "escape" && toolPoints.length === 0 && selectedCandidate !== null) clearCandidate();
     else if (key === "escape") cancelDrawing();
     else return;
     event.preventDefault();
@@ -498,6 +573,9 @@ function bindShortcuts() {
 function showMapTab(tab) {
   for (const button of document.querySelectorAll("[data-map-tab]")) button.dataset.active = String(button.dataset.mapTab === tab);
   for (const pane of document.querySelectorAll("[data-map-pane]")) pane.classList.toggle("hidden", pane.dataset.mapPane !== tab);
+  // While checking, the point projection is faded to grey: context for the candidates, not a red sea.
+  document.getElementById("map-layer-projection").classList.toggle("map-checking", tab === "check");
+  if (tab !== "check") clearCandidate();
 }
 
 function bindPanels() {
@@ -520,6 +598,7 @@ function bindPanels() {
   for (const button of document.querySelectorAll("[data-kind]")) {
     button.addEventListener("click", () => {
       candidateKind = button.dataset.kind;
+      clearCandidate();
       showCandidates();
       drawOverlay();
     });

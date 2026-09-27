@@ -67,6 +67,11 @@ class MapSession:
         opened = self.document is not None
         return opened
 
+    def _need_map(self) -> None:
+        """Opens the last map if none is open; with no map at all, says so instead of failing deeper."""
+        if not self.open_last():
+            raise FileNotFoundError("No map is open. Open or upload one on the Map page first.")
+
     def maps(self) -> dict:
         """The maps that can be opened, and which one is open."""
         current = self.document.folder.name if self.document is not None else None
@@ -257,7 +262,13 @@ class MapSession:
         return result
 
     def focus(self, x: float, y: float, distance: float) -> None:
+        self._need_map()
         self.display.focus(self.document, x, y, distance)
+
+    def highlight(self, outline: list, kind: str) -> None:
+        """Fence off one candidate in 3D (outline in metres); an empty outline clears it."""
+        self._need_map()
+        self.display.highlight(self.document, outline, kind)
 
     def set_scene_layer(self, name: str, visible: bool) -> dict[str, bool]:
         """Show or hide a 3D layer (map / ground / grid); returns every layer's state."""
@@ -267,6 +278,7 @@ class MapSession:
 
     def candidates(self, **kwargs) -> list[dict]:
         """Suspected ghosts and missed obstacles in the current map; hints only, nothing is changed."""
+        self._need_map()
         candidates = self.inspection.candidate_list(self.document, **kwargs)
         return candidates
 

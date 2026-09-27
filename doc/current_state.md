@@ -218,6 +218,44 @@ MiniMax sample generated) and the downloaded action and map zips checked file by
    but not its closing mark: the leftover "！"/"。" went out as its own request. Parts with nothing to
    read now join the speech before them (or after, at the start).
 
+## 2026-09-27 Third review
+
+1. Play action: the ".pkl you made yourself" warning is gone; the drop zone says what opens (an action
+   .npz saved here, a Kimodo .npz, an ARDY .pkl).
+2. Play action: no FPS field. A Kimodo NPZ uses its stored fps, else `ActionConfig.KIMODO_FPS` (30).
+3. Build action: the Return row's move time looked disabled (the whole row was grey); only the label is
+   grey now, the field is an ordinary input.
+4. Build action: pose pictures. `util/robot_render_helper.py` renders the G1 offscreen with MuJoCo (one
+   worker thread owns the GL context; floor and sky masked to a plain background) and
+   `component/pose_editing/pose_preview.py` draws each picture (see the fourth review for where it is kept). `GET /api/poses/{type}/{name}/preview.png`.
+   "Add a pose" opens a picker (search, All/Base/Composed) of pictures; each step row shows a thumbnail.
+
+## 2026-09-27 Fourth review
+
+- Compose saves a composed pose again (no Save as there; Record keeps Save as Base / Left arm / Right arm).
+- Every pose is saved with its picture, `data/poses/<type>/<name>.png`, drawn on save (Record, Compose,
+  capture, import) and moved to the trash with the pose; older poses get theirs when first shown. The 48
+  poses in `data/` have theirs now. The Compose page shows the saved picture after Save / Open.
+- The renderer makes and closes its GL context inside each call on its worker thread (~80 ms): a
+  context freed from another thread by garbage collection or at exit crashed the process.
+
+## 2026-09-27 Map check: ghosts and gaps readable
+
+- The "sea of red" was the point projection layer (red density, 0.1–2.0 m) under candidate outlines that were
+  red too. On the Check tab the projection is now grey and faded; ghosts are fuchsia and gaps blue (colours no
+  layer uses), only the kind being checked is drawn, each with a white halo, and ones too small to see at the
+  current zoom get a ring.
+- Clicking a candidate spotlights it: the map outside a window round it dims, it gets a thick outline and a
+  label (#id, kind, cells, size), the others turn thin and dashed; in 3D it is fenced off (floor ring, ring at
+  1.8 m, posts). Esc, switching kind or tab, or any edit takes the spotlight and fence away.
+- `/api/map/candidates`, `/focus` and `/highlight` open the last map first and say "No map is open" instead of
+  failing inside when none is.
+
+## 2026-09-27 Pushed with data
+
+- `data/actions`, `data/poses` (with pictures), `data/maps` and `data/tts/sample` are now in git (no longer
+  ignored); `data/.trash` and speech clips made while testing stay out.
+
 ## Next
 
 - The user reviews the new layout, Speech and Map in the running app (put the keys in `.env` to

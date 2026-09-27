@@ -67,6 +67,14 @@ class PointCloudViewerHelper:
             return
         handle.image = rgb
 
+    def set_lines(self, name: str, segments: np.ndarray, color: tuple, thickness: float) -> None:
+        """segments: (N, 2, 3) start and end points in metres; none removes the node."""
+        self.remove(name)
+        if len(segments) == 0:
+            return
+        self.handles[name] = self.server.scene.add_line_segments(
+            name, segments.astype(np.float32), np.array(color, dtype=np.uint8), thickness=thickness)
+
     def set_visible(self, name: str, visible: bool) -> None:
         self.handles[name].visible = visible
 

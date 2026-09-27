@@ -41,21 +41,27 @@ point the app at a copy: set `G1_RECORDER_DATA_DIR` to that folder before starti
 
 The sidebar follows the workflow (1–4), then Library, Map and Speech. Left and right always mean the
 robot's own sides. Record, Compose and Build share one pattern: Open and New at the top, the editor in
-the middle, Save as, Name and Save at the bottom.
+the middle, Save as, Name and Save at the bottom (Record: Left arm / Right arm / Composed; Compose: Composed).
 
-1. **Record pose**: open any saved pose (base, composed, left or right arm) or start New from
-   `concierge_init`, drag the 17 sliders (degrees) or type values, then choose **Save as** Base, Left arm
-   or Right arm before saving. A base pose is the whole robot (waist and both arms); the groups an arm
-   pose doesn't keep fold away. Opening a pose sets Save as to its type (a composed pose saves as base).
-   Each group has Reset (back to `concierge_init`) and the arms have Copy to other arm (mirrored).
-2. **Compose pose**: pick a base pose and optionally swap in saved left/right arm poses, then Save as
-   Base (the whole result, remembering its parts) or Left arm / Right arm (just that arm). Open lists
-   the poses made here, so their parts can be changed. Base (and older composed) poses go into actions.
-3. **Build action**: list poses with move and hold times. Every action starts and ends at
+1. **Record pose**: open any saved pose (base, composed, left or right arm) as a starting point or start
+   New from `concierge_init`, drag the arm sliders (degrees) or type values, then choose **Save as** Left
+   arm, Right arm or Composed (base + left arm + right arm). The waist is always shown but locked: it comes
+   from the base pose. The arm a left- or right-arm pose doesn't keep folds away. Opening a pose sets Save
+   as to its type (a base pose opens as Composed).
+   Each joint has its own reset and each group a Reset (both back to `concierge_init`); the arms have
+   Copy to other arm (mirrored).
+2. **Compose pose**: pick a base pose and optionally swap in saved left/right arm poses, then save it as
+   a composed pose (it remembers its parts; Open brings them back). Base and composed poses go into
+   actions.
+3. **Build action**: list poses with move and hold times. Add a pose opens a picker with a picture of
+   every base and composed pose; each step shows its picture too. Every pose is saved with its picture
+   (`data/poses/<type>/<name>.png`, drawn with MuJoCo on save; older poses get one when first shown). Every action starts and ends at
    `concierge_init`. Preview plays it without saving; Save writes the definition (JSON) and the compiled
    trajectory (NPZ) together, and Export .zip then hands over both with the poses they use.
-4. **Play action**: play a saved action or open a motion file (recorder NPZ, Kimodo NPZ, ARDY PKL).
-   Only the arms move. Pause on a frame to save either arm as a pose.
+4. **Play action**: play a saved action or open a motion file (an action NPZ saved here, a Kimodo NPZ,
+   an ARDY PKL). A Kimodo file without its own fps is read at Kimodo's 30 fps.
+   Only the arms move. Pause on a frame and save it the same way
+   as Record: Save as Left arm, Right arm or Composed (the waist as shown, both arms from the frame).
 
 Beside the workflow:
 
@@ -63,13 +69,17 @@ Beside the workflow:
   `data/.trash/<time>/` (same paths as under `data/`, so restoring is moving them back).
   `concierge_init` and any pose an action uses can't be deleted; delete or edit that action first.
   Poses made in Compose keep their own copy of their parts, so an arm pose can go. Import pose takes one
-  pose `.json`; Import action takes a `.zip` made by Export, which carries the definition, the
-  trajectory and every pose it uses (older zips with `action.json` still import). Anything that would change an existing pose or action is listed and asked
+  pose `.json`. Tick one, several or all actions and Export selected: one `.zip` laid out like `data/`
+  (`actions/definitions`, `actions/trajectories`, `poses/<type>/` with each pose's picture), every shared
+  pose once. Import action takes such a `.zip` (one or many actions), which carries the definitions, the
+  trajectories and every pose they use (older zips with `action.json` still import). Anything that would change an existing pose or action is listed and asked
   about first; the action is compiled again here from the imported poses.
 - **Map**: open a G1 map (`data/maps/<name>/`, one folder per map) or upload a map `.zip`, then clean
   it: erase ghosts (lasso, rectangle, brush; the grid is cleared and the points in the height band
   deleted, shown red in 3D, and confirmed before anything changes), add obstacles (wall, polygon,
-  rectangle, brush), snap to the building's main direction, check the suspected ghosts and gaps,
+  rectangle, brush), snap to the building's main direction, check the suspected ghosts (fuchsia) and gaps (blue): while
+  checking, the point projection turns grey; clicking one spotlights it (the rest of the map dims) and fences
+  it off in 3D, Esc shows them all again;
   undo, redo and jump in the history. Save & export writes the folder (the first save keeps the
   originals as `*.orig.*`, every save the version before in `.backup/`) and downloads the folder's own
   files (`manifest.json`, `map.pcd`, `ground_map.pcd`, `grid.pgm`, `grid.yaml`) as a `.zip`, a copy of
@@ -88,7 +98,7 @@ Beside the workflow:
   (BytePlus: its official recordings; MiniMax: each voice saying one line in its own language); the
   page never generates one. Make or top them up with
   `uv run python component/speech_generation/voice_samples.py --build [byteplus|minimax]` (skips what
-  is there; about 130 MB + 20 MB, kept out of git).
+  is there; about 130 MB + 45 MB, in git with the rest of data/).
 
 The playback bar under the 3D view is shared by the four workflow pages: play/pause, stop, frame step,
 scrub (drag pauses), loop. Saving over an existing name, deleting, and anything else that can't be
@@ -98,11 +108,11 @@ undone asks in a dialog first.
 
 ```text
 data/
-├── poses/{base,left_arm,right_arm,composed}/<name>.json   schema 1
+├── poses/{base,left_arm,right_arm,composed}/<name>.json   schema 1, with <name>.png, its picture
 ├── actions/definitions/<name>.json                         schema 1: poses + move/hold seconds
 ├── actions/trajectories/<name>.npz                         schema 2: sampled trajectory
 ├── tts/<name>.wav + <name>.json                            speech clips (schema 2: provider, voice, script, requests)
-├── tts/sample/{byteplus,minimax}/<voice>.wav               voice samples, made ahead (not in git)
+├── tts/sample/{byteplus,minimax}/<voice>.wav               voice samples, made ahead
 ├── maps/<name>/                                            G1 maps: grid.pgm/.yaml, map.pcd, ground_map.pcd, manifest.json (git ignores it)
 └── .trash/<YYYYmmdd-HHMMSS>/...                            what Library deleted (git ignores it)
 ```
@@ -136,7 +146,7 @@ The page does everything through these; other programs can use them too.
 | `GET /api/map`, `GET /api/map/maps`, `POST /api/map/maps/{open,upload}` | the open map, the maps there are, open or upload one |
 | `GET /api/map/{grid,projection,diff,protection}.png`, `POST /api/map/scene/layer`, `POST /api/map/focus` | 2D layers and the 3D view |
 | `POST /api/map/edit/preview`, `POST /api/map/edit[/cancel]`, `POST /api/map/{undo,redo,history/jump/{id}}`, `GET /api/map/history` | edits and history |
-| `GET /api/map/candidates`, `POST /api/map/save`, `GET /api/map/package/{name}`, `POST /api/map/restore` | suspected ghosts and gaps, save and export, restore the original |
+| `GET /api/map/candidates`, `POST /api/map/highlight`, `POST /api/map/save`, `GET /api/map/package/{name}`, `POST /api/map/restore` | suspected ghosts and gaps, fence one off in 3D, save and export, restore the original |
 
 ## Code
 

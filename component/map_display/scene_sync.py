@@ -29,6 +29,7 @@ class SceneSync:
     GRID_NODE = "/grid"
     PREVIEW_NODE = "/preview/delete"
     PROTECTED_NODE = "/preview/protected"
+    HIGHLIGHT_NODE = "/highlight"
     # Layers the page can switch; preview points are always shown.
     LAYER_NODES = {"map": MAP_NODE, "ground": GROUND_NODE, "grid": GRID_NODE}
 
@@ -66,6 +67,7 @@ class SceneSync:
         if not self.started:
             return
         self.viewer.remove(self.GRID_NODE)
+        self.viewer.remove(self.HIGHLIGHT_NODE)
         self.reload(document)
         for name, visible in self.layers.items():
             self.viewer.set_visible(self.LAYER_NODES[name], visible)
@@ -134,6 +136,23 @@ class SceneSync:
         colors = np.tile(np.array(color, dtype=np.uint8), (len(points), 1))
         self.viewer.set_points(node, points, colors, point_size=self.preview_point_size, visible=True)
 
+    def highlight(self, document: MapDocument, outline: list, kind: str) -> None:
+        """A fence around a map area: its outline on the floor and at head height, joined at every corner.
+        An empty outline takes it away."""
+        if not self.started:
+            return
+        segments = np.zeros((0, 2, 3))
+        if len(outline) >= 3:
+            ring = np.asarray(outline, dtype=np.float64)
+            low = np.column_stack([ring, np.full(len(ring), document.ground_z + 0.02)])
+            high = low + (0.0, 0.0, MapViewerConfig.HIGHLIGHT_HEIGHT_REL)
+            following = np.roll(np.arange(len(ring)), -1)
+            segments = np.concatenate([np.stack([low, low[following]], axis=1),
+                                       np.stack([high, high[following]], axis=1),
+                                       np.stack([low, high], axis=1)])
+        self.viewer.set_lines(self.HIGHLIGHT_NODE, segments, MapViewerConfig.HIGHLIGHT_COLORS[kind],
+                              MapViewerConfig.HIGHLIGHT_THICKNESS)
+
     def focus(self, document: MapDocument, **kwargs) -> None:
         """Look at a spot from above and to the south; with no target, the whole map."""
         if not self.started:
@@ -171,7 +190,8 @@ def demo_scene() -> None:
     xyz = document.map_cloud.xyz
     patch = np.flatnonzero((np.abs(xyz[:, 0] - 2.0) < 1.0) & (np.abs(xyz[:, 1] - 3.0) < 1.0))
     scene.show_preview(document, Erasure(map_idx=patch, ground_idx=np.zeros(0, np.int64), cells=0))
-    logger.info("Previewing {:,} points (red). Open {} to look, Ctrl+C to stop", len(patch), scene.url)
+    scene.highlight(document, [[1.0, 2.0], [3.0, 2.0], [3.0, 4.0], [1.0, 4.0]], "ghost")
+    logger.info("Previewing {:,} points (red) inside a fence. Open {} to look, Ctrl+C to stop", len(patch), scene.url)
     while True:
         time.sleep(1)
 

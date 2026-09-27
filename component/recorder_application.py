@@ -21,6 +21,7 @@ from component.common.action import Action, ActionStep, Trajectory
 from component.common.g1_joint_schema import G1JointSchema, PoseType
 from component.common.pose import Pose
 from component.map_session.service import MapSession
+from component.pose_editing.pose_preview import PosePreview
 from component.pose_editing.service import PoseService
 from component.robot_display.service import RobotDisplayService
 from component.robot_state.service import RobotStateService
@@ -41,8 +42,9 @@ class RecorderApplication:
         self.robot.update(self.home_values())
         # Playback moves the arms only: the legs stand still and the waist stays at the home pose.
         standing = self.robot.snapshot()["joint_positions"]
-        self.playback = PlaybackService(self.schema, self.robot,
-                                        {name: standing[name] for name in self.schema.LEG_JOINT_NAMES})
+        self.standing_legs = {name: standing[name] for name in self.schema.LEG_JOINT_NAMES}
+        self.playback = PlaybackService(self.schema, self.robot, self.standing_legs)
+        self.previews = PosePreview()
         self.imports = MotionImport(self.schema, self.home_values())
         self._apply_home()
         self.display = RobotDisplayService(self.robot)
@@ -65,6 +67,24 @@ class RecorderApplication:
                          "lower": limit.lower, "upper": limit.upper, "home": home[name]})
         return rows
 
+    def pose_picture(self, pose_type: PoseType, name: str) -> Path:
+        """The picture saved with the pose; a pose saved before pictures existed gets one now."""
+        path = self.poses.picture_path(pose_type, name)
+        if not path.exists():
+            self._draw(self.poses.load(pose_type, name))
+        return path
+
+    def _save_pose(self, pose: Pose, overwrite: bool = False) -> None:
+        """Every save goes through here, so a saved pose always has a picture that matches it."""
+        self.poses.save(pose, overwrite)
+        self._draw(pose)
+
+    def _draw(self, pose: Pose) -> None:
+        """As the robot would stand in it: an arm pose keeps the home pose's waist and other arm, and the
+        legs stand as they always do here."""
+        values = {**self.standing_legs, **self.home_values(), **pose.joint_values}
+        self.previews.draw(values, self.poses.picture_path(pose.pose_type, pose.name))
+
     # Record pose
     def move_joints(self, joint_values: Mapping[str, float]) -> int:
         """Any hand edit pauses playback first, so the player doesn't pull the robot back."""
@@ -74,12 +94,13 @@ class RecorderApplication:
 
     def save_recorded_pose(self, pose_type: PoseType, name: str, joint_values: Mapping[str, float],
                            overwrite: bool = False) -> Pose:
-        if pose_type is PoseType.COMPOSED:
-            raise ValueError("Save a base, left-arm or right-arm pose")
+        """Record saves one arm, or the whole robot (waist and both arms) as a composed pose."""
+        if pose_type is PoseType.BASE:
+            raise ValueError("Record saves a left-arm, right-arm or composed pose")
         values = self.schema.check(pose_type, joint_values)
         self.move_joints(values)
         pose = Pose(name, pose_type, values)
-        self.poses.save(pose, overwrite)
+        self._save_pose(pose, overwrite)
         if self._is_home(pose.pose_type, pose.name):
             self._apply_home()
         return pose
@@ -101,17 +122,11 @@ class RecorderApplication:
         return pose
 
     def save_composition(self, name: str, base: str, left_arm: str = "", right_arm: str = "",
-                         overwrite: bool = False, pose_type: PoseType = PoseType.BASE) -> Pose:
-        """Saved as a base pose (the whole combination, with the parts it was made from) or as one arm of it."""
-        if pose_type is PoseType.COMPOSED:
-            raise ValueError("Save a composition as a base, left-arm or right-arm pose")
-        composed = self.poses.compose(name, base, left_arm, right_arm)
-        self.move_joints(composed.joint_values)
-        values = {joint: composed.joint_values[joint] for joint in self.schema.joint_names(pose_type)}
-        pose = Pose(name, pose_type, values, source="composition", source_parts=composed.source_parts)
-        self.poses.save(pose, overwrite)
-        if self._is_home(pose.pose_type, pose.name):
-            self._apply_home()
+                         overwrite: bool = False) -> Pose:
+        """A composed pose: the combined values plus the parts it was made from, with its picture."""
+        pose = self.poses.compose(name, base, left_arm, right_arm)
+        self.move_joints(pose.joint_values)
+        self._save_pose(pose, overwrite)
         return pose
 
     # Build action
@@ -150,22 +165,24 @@ class RecorderApplication:
         snapshot = self.playback.play()
         return snapshot
 
-    def import_motion(self, filename: str, content: bytes, fps: float | None = None) -> dict:
+    def import_motion(self, filename: str, content: bytes) -> dict:
         """The file is read and loaded into the player, never copied into data/."""
-        trajectory, file_format = self.imports.load(filename, content, fps)
+        trajectory, file_format = self.imports.load(filename, content)
         snapshot = self.playback.load(trajectory, file_format)
         return snapshot
 
-    def capture_arm_pose(self, pose_type: PoseType, name: str, overwrite: bool = False) -> Pose:
-        """Save one arm of the frame playback is paused on."""
-        if pose_type not in (PoseType.LEFT_ARM, PoseType.RIGHT_ARM):
-            raise ValueError("Capture saves a left-arm or right-arm pose")
-        index, seconds, values = self.playback.paused_sample()
+    def capture_pose(self, pose_type: PoseType, name: str, overwrite: bool = False) -> Pose:
+        """Save the frame playback is paused on: one arm, or the whole robot as a composed pose (its waist is
+        the one shown, since playback moves the arms only). The same choices as Record."""
+        if pose_type is PoseType.BASE:
+            raise ValueError("Save a frame as a left-arm, right-arm or composed pose")
+        index, seconds, arms = self.playback.paused_sample()
+        values = {**self.robot.snapshot()["joint_positions"], **arms}
         snapshot = self.playback.snapshot()
         note = f"Captured from {snapshot['name']!r}, frame {index + 1}/{snapshot['count']} at {seconds:.2f} s."
         pose = Pose(name, pose_type, {joint: values[joint] for joint in self.schema.joint_names(pose_type)},
                     notes=note)
-        self.poses.save(pose, overwrite)
+        self._save_pose(pose, overwrite)
         return pose
 
     # Library
@@ -214,38 +231,50 @@ class RecorderApplication:
         if status == "replaced" and not overwrite:
             raise FileExistsError(self._replace_question([f"{pose.pose_type.value}/{pose.name}"]))
         if status != "unchanged":
-            self.poses.save(pose, overwrite=True)
+            self._save_pose(pose, overwrite=True)
         if status == "replaced" and self._is_home(pose.pose_type, pose.name):
             self._apply_home()
         result = {"name": pose.name, "pose_type": pose.pose_type.value, "status": status}
         return result
 
     def import_action(self, filename: str, content: bytes, overwrite: bool = False) -> dict:
-        """An exported action zip: its poses are saved first, then the action is compiled here from them."""
-        action, poses, sample_hz = self.actions.read_bundle(content, filename)
+        """An exported action zip (one or many actions): its poses are saved first, then each action is
+        compiled here from them. Anything it would change is asked about once, for the whole zip."""
+        actions, poses = self.actions.read_bundle(content, filename)
         packed = {(pose.pose_type, pose.name) for pose in poses}
-        missing = [f"{pose_type.value}/{name}" for pose_type, name in self.actions.poses_of(action)
-                   if (pose_type, name) not in packed and not self.poses.exists(pose_type, name)]
+        missing = sorted({f"{pose_type.value}/{name}" for action, _ in actions
+                          for pose_type, name in self.actions.poses_of(action)
+                          if (pose_type, name) not in packed and not self.poses.exists(pose_type, name)})
         if missing:
             raise ValueError(f"{filename} doesn't include {', '.join(missing)}, and there is no such pose here")
         added = [pose for pose in poses if not self.poses.exists(pose.pose_type, pose.name)]
         replaced = [pose for pose in poses if pose not in added and not self.poses.matches(pose)]
         changed = [f"{pose.pose_type.value}/{pose.name}" for pose in replaced]
-        status = "added"
-        if action.name in self.actions.names():
-            same = self.actions.load(action.name).to_dict(self.schema.model_id) == action.to_dict(self.schema.model_id)
-            status = "unchanged" if same and not replaced else "replaced"
-            if not same:
-                changed.insert(0, f"action {action.name}")
+        saved = self.actions.names()
+        statuses = []
+        for action, _ in actions:
+            status = "added"
+            if action.name in saved:
+                same = (self.actions.load(action.name).to_dict(self.schema.model_id)
+                        == action.to_dict(self.schema.model_id))
+                status = "unchanged" if same and not replaced else "replaced"
+                if not same:
+                    changed.insert(0, f"action {action.name}")
+            statuses.append(status)
         if changed and not overwrite:
             raise FileExistsError(self._replace_question(changed))
         for pose in added + replaced:
-            self.poses.save(pose, overwrite=True)
-        if status != "unchanged":
-            self.actions.save(action, sample_hz, overwrite=True)
+            self._save_pose(pose, overwrite=True)
+        for (action, sample_hz), status in zip(actions, statuses, strict=True):
+            if status != "unchanged":
+                self.actions.save(action, sample_hz, overwrite=True)
         if any(self._is_home(pose.pose_type, pose.name) for pose in replaced):
             self._apply_home()
-        result = {"name": action.name, "status": status, "poses_added": [pose.name for pose in added],
+        # One word for the whole zip: every action the same, else "replaced" if anything was.
+        overall = statuses[0] if len(set(statuses)) == 1 else "replaced" if "replaced" in statuses else "added"
+        imported = [{"name": action.name, "status": status}
+                    for (action, _), status in zip(actions, statuses, strict=True)]
+        result = {"actions": imported, "status": overall, "poses_added": [pose.name for pose in added],
                   "poses_replaced": [pose.name for pose in replaced]}
         return result
 
@@ -289,21 +318,22 @@ def demo_recorder_application() -> None:
     left = {name: home[name] for name in application.schema.LEFT_ARM_JOINT_NAMES}
     left["left_elbow_joint"] = 1.2
     application.save_recorded_pose(PoseType.LEFT_ARM, "demo_left", left)
-    application.save_composition("demo_composed", RobotConfig.HOME_POSE_NAME, left_arm="demo_left")
-    steps = [{"pose_type": "base", "pose_name": "demo_composed", "move_seconds": 1.0, "hold_seconds": 0.5}]
+    composed = application.save_composition("demo_composed", RobotConfig.HOME_POSE_NAME, left_arm="demo_left")
+    logger.info("Composed {} with its picture {}", composed.name,
+                application.pose_picture(PoseType.COMPOSED, composed.name))
+    steps = [{"pose_type": "composed", "pose_name": "demo_composed", "move_seconds": 1.0, "hold_seconds": 0.5}]
     trajectory = application.save_action("demo_action", steps, 1.0)
     logger.info("Saved demo_action: {} samples; editor view {}", trajectory.sample_count,
                 application.open_action("demo_action"))
     application.play_saved("demo_action")
     logger.info("Seek: {}", application.playback.seek(20))
-    logger.info("Captured {}", application.capture_arm_pose(PoseType.LEFT_ARM, "demo_capture").notes)
+    logger.info("Captured {}", application.capture_pose(PoseType.LEFT_ARM, "demo_capture").notes)
     listing = application.library()
-    logger.info("Library: {} actions; made in Compose {}", len(listing["actions"]),
-                [entry for entry in listing["poses"]["base"] if entry["made_from"]])
-    bundle = application.actions.export_bundle("demo_action")
+    logger.info("Library: {} actions; composed {}", len(listing["actions"]), listing["poses"]["composed"])
+    bundle = application.actions.export_bundle(["demo_action"])
     application.delete_action("demo_action")
     logger.info("Delete demo_composed now that no action uses it: {}",
-                application.delete_pose(PoseType.BASE, "demo_composed"))
+                application.delete_pose(PoseType.COMPOSED, "demo_composed"))
     logger.info("Import the exported zip: {}", application.import_action("demo_action.zip", bundle))
     logger.info("Import it again: {}", application.import_action("demo_action.zip", bundle)["status"])
 

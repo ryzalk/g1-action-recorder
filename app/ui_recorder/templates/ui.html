@@ -69,10 +69,11 @@
 </svg>
 {%- endmacro %}
 
-{# Save as: what Save writes. Base is the whole robot (waist and both arms). #}
-{% macro save_as_choice(name) %}
+{# Save as: what Save writes, the same control on every page that saves a pose (Record: an arm; Compose:
+   a composed pose). #}
+{% macro save_as_choice(name, choices) %}
 <div class="{{ save_as }}" role="radiogroup" aria-label="Save as" data-save-as>
-  {% for value, label, dot in [("base", "Base", "bg-gray-500"), ("left_arm", "Left arm", "bg-blue-600"), ("right_arm", "Right arm", "bg-orange-500")] %}
+  {% for value, label, dot in choices %}
   <label class="{{ save_as_segment }}">
     <input type="radio" name="{{ name }}" value="{{ value }}" class="sr-only"{% if loop.first %} checked{% endif %} />
     <span class="size-2 rounded-full {{ dot }}"></span>{{ label }}

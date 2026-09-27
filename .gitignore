@@ -13,9 +13,3 @@ node_modules/
 # Logs and demo output
 output/
 data/.trash/
-
-# Maps are large binary packages (point clouds); keep them out of git
-data/maps/
-
-# Voice samples: made again with component/speech_generation/voice_samples.py --build
-data/tts/sample/

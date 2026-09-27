@@ -94,10 +94,11 @@
         <p id="map-candidate-note" class="text-xs text-gray-500"></p>
         <div class="grid grid-cols-2 gap-1.5">
           {% for kind, label in [("ghost", "Ghosts"), ("missing", "Gaps")] %}
-          <button type="button" data-kind="{{ kind }}" class="{{ tool_button }} justify-center">{{ label }}<span id="map-{{ kind }}-count" class="rounded-full bg-black/10 px-1.5 text-[11px]"></span></button>
+          <button type="button" data-kind="{{ kind }}" class="{{ tool_button }} justify-center"><span class="size-2.5 rounded-sm ring-2 ring-white {{ 'bg-fuchsia-600' if kind == 'ghost' else 'bg-blue-600' }}"></span>{{ label }}<span id="map-{{ kind }}-count" class="rounded-full bg-black/10 px-1.5 text-[11px]"></span></button>
           {% endfor %}
         </div>
         <ol id="map-candidates" class="divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 text-xs"></ol>
+        <p class="text-[11px] text-gray-400">Click one to spotlight it on the map and fence it in 3D; Esc shows them all again. The point projection is grey while you check.</p>
         <details class="group space-y-3">
           <summary class="flex cursor-pointer select-none items-center gap-x-1.5 text-[13px] font-semibold text-gray-700 marker:content-none"><span class="transition-transform group-open:rotate-90">{{ ui.icon("right", "size-3.5") }}</span>Detection settings</summary>
           {{ band("map-cand-z", "Point height above floor") }}
@@ -147,7 +148,7 @@
         <div id="map-stage" class="absolute left-0 top-0 origin-top-left [image-rendering:pixelated]">
           <img id="map-layer-original" alt="" class="pointer-events-none absolute inset-0 hidden" />
           <img id="map-layer-current" alt="" class="pointer-events-none absolute inset-0" />
-          <img id="map-layer-projection" alt="" class="pointer-events-none absolute inset-0" />
+          <img id="map-layer-projection" alt="" class="pointer-events-none absolute inset-0 [&.map-checking]:opacity-35 [&.map-checking]:grayscale" />
           <img id="map-layer-protection" alt="" class="pointer-events-none absolute inset-0 hidden" />
           <img id="map-layer-diff" alt="" class="pointer-events-none absolute inset-0" />
         </div>

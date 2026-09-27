@@ -38,16 +38,16 @@ class MotionImport:
         """Imported motions blend in from and back out to these arm values."""
         self.home_arms = np.asarray([home_values[name] for name in self.schema.ARM_JOINT_NAMES])
 
-    def load(self, filename: str, content: bytes, fps: float | None = None) -> tuple[Trajectory, str]:
+    def load(self, filename: str, content: bytes) -> tuple[Trajectory, str]:
         """The trajectory and the format it was read as; the file itself is not kept."""
         # A wrong or damaged file is the common mistake here; say which file and why instead of a bare 500.
         try:
-            result = self._read(filename, content, fps)
+            result = self._read(filename, content)
         except (zipfile.BadZipFile, pickle.UnpicklingError, EOFError, KeyError, TypeError) as error:
             raise ValueError(f"Couldn't read {filename} as a recorder, Kimodo or ARDY motion ({error})") from error
         return result
 
-    def _read(self, filename: str, content: bytes, fps: float | None) -> tuple[Trajectory, str]:
+    def _read(self, filename: str, content: bytes) -> tuple[Trajectory, str]:
         name = Path(filename).stem
         if filename.lower().endswith(".pkl"):
             motion = self.motion_files.read_ardy(content)
@@ -60,7 +60,7 @@ class MotionImport:
                 trajectory.name = name
                 file_format = "Recorder NPZ"
             else:
-                motion = self.motion_files.read_kimodo(arrays, fps)
+                motion = self.motion_files.read_kimodo(arrays, ActionConfig.KIMODO_FPS)
                 trajectory = self._with_home_blend(name, motion.arm_positions, motion.fps)
                 file_format = "Kimodo NPZ"
         self._check_limits(trajectory)
@@ -105,7 +105,7 @@ def demo_motion_import() -> None:
                 trajectory.sample_count, len(trajectory.joint_names))
     rest = np.tile(np.eye(3), (10, 34, 1, 1))
     DataFileHelper().write_npz(PathConfig.DEMO_DIR / "kimodo_rest.npz", {"global_rot_mats": rest}, overwrite=True)
-    kimodo, file_format = importer.load("kimodo_rest.npz", (PathConfig.DEMO_DIR / "kimodo_rest.npz").read_bytes(), 30.0)
+    kimodo, file_format = importer.load("kimodo_rest.npz", (PathConfig.DEMO_DIR / "kimodo_rest.npz").read_bytes())
     logger.info("kimodo_rest.npz as {}: {} samples over {:.2f} s, keyframes {}", file_format, kimodo.sample_count,
                 kimodo.duration, kimodo.keyframe_indices)
 

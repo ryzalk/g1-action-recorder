@@ -1,10 +1,10 @@
 {% import "ui.html" as ui %}
-<section data-page="compose" data-title="Compose pose" data-hint="Take a base pose and swap in saved arms, then save it as a base pose or one arm." class="hidden min-h-0 flex-1 flex-col">
+<section data-page="compose" data-title="Compose pose" data-hint="Take a base pose and swap in saved arms, then save it as a composed pose for actions." class="hidden min-h-0 flex-1 flex-col">
   <div class="{{ ui.panel }}">
     <div class="flex shrink-0 gap-x-2 border-b border-gray-200 p-4">
       <div class="relative flex-1">
         <span class="pointer-events-none absolute start-3 top-2.5 text-gray-400">{{ ui.icon("folder") }}</span>
-        <select id="compose-open" class="{{ ui.input }} ps-9" aria-label="Open a pose made here"></select>
+        <select id="compose-open" class="{{ ui.input }} ps-9" aria-label="Open a composed pose"></select>
       </div>
       <button id="compose-new" type="button" class="{{ ui.button }}">{{ ui.icon("plus") }}New</button>
     </div>
@@ -23,17 +23,24 @@
           <p class="flex items-center gap-x-2 rounded-lg bg-blue-50 px-3 py-2 text-[13px] text-blue-700">{{ ui.icon("info") }}Each change shows on the robot right away.</p>
         </div>
       </div>
+
+      <div id="compose-picture" class="{{ ui.card }}" hidden>
+        <div class="{{ ui.card_header }}"><h3 class="{{ ui.card_title }}">Saved picture</h3></div>
+        <div class="flex items-center gap-x-4 p-4">
+          <img class="h-40 w-32 shrink-0 rounded-lg border border-gray-200 bg-gray-100 object-cover" alt="" />
+          <p class="{{ ui.hint }}"><span data-picture-name class="font-medium text-gray-800"></span> as saved. Build action shows this picture when you pick poses.</p>
+        </div>
+      </div>
     </div>
 
     <div class="shrink-0 space-y-2.5 border-t border-gray-200 px-4 py-3">
       <div class="flex items-center gap-x-2.5">
         <span class="w-14 shrink-0 text-[13px] font-medium text-gray-700">Save as</span>
-        {{ ui.save_as_choice("compose-kind") }}
+        {{ ui.save_as_choice("compose-kind", [("composed", "Composed", "bg-violet-600")]) }}
       </div>
-      <p data-save-as-note class="{{ ui.hint }}"></p>
       <div class="flex items-center gap-x-2.5">
         <label for="compose-name" class="w-14 shrink-0 text-[13px] font-medium text-gray-700">Name</label>
-        <input id="compose-name" data-enter="compose-save" class="{{ ui.input }}" placeholder="Pose name, e.g. wave_left" autocomplete="off" />
+        <input id="compose-name" data-enter="compose-save" class="{{ ui.input }}" placeholder="Composed pose name, e.g. wave_left" autocomplete="off" />
         <button id="compose-save" type="button" class="{{ ui.primary }}">Save</button>
       </div>
     </div>

@@ -10,6 +10,7 @@ if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
 from fastapi import APIRouter
+from fastapi.responses import FileResponse
 from loguru import logger
 from pydantic import BaseModel
 
@@ -38,15 +39,12 @@ class Composition(BaseModel):
     right_arm: str = ""
     name: str = ""
     overwrite: bool = False
-    # What Save writes: the whole combination as a base pose, or one arm of it.
-    pose_type: PoseType = PoseType.BASE
 
 
 @router.get("")
 def list_poses() -> dict:
-    # compositions: the poses Compose can open again (any saved from it), as {pose_type, name, source_parts}.
     result = {"names": recorder_context.poses.names(), "home": RobotConfig.HOME_POSE_NAME,
-              "home_values": recorder_context.home_values(), "compositions": recorder_context.poses.compositions()}
+              "home_values": recorder_context.home_values()}
     return result
 
 
@@ -55,6 +53,14 @@ def get_pose(pose_type: PoseType, name: str) -> dict:
     pose = recorder_context.poses.load(pose_type, name)
     result = pose.to_dict(recorder_context.schema.model_id)
     return result
+
+
+@router.get("/{pose_type}/{name}/preview.png")
+def pose_preview(pose_type: PoseType, name: str) -> FileResponse:
+    """The picture saved with the pose (data/poses/<type>/<name>.png)."""
+    path = recorder_context.pose_picture(pose_type, name)
+    response = FileResponse(path, media_type="image/png", headers={"Cache-Control": "no-cache"})
+    return response
 
 
 @router.post("/{pose_type}/{name}/show")
@@ -89,7 +95,7 @@ def preview_composition(command: Composition) -> dict:
 @router.post("/compose")
 def save_composition(command: Composition) -> dict:
     pose = recorder_context.save_composition(command.name, command.base, command.left_arm, command.right_arm,
-                                             command.overwrite, command.pose_type)
+                                             command.overwrite)
     result = {"name": pose.name, "pose_type": pose.pose_type.value, "source_parts": pose.source_parts}
     return result
 

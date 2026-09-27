@@ -16,26 +16,25 @@
           <label for="play-file" class="flex cursor-pointer flex-col items-center justify-center gap-y-1 rounded-lg border border-dashed border-gray-300 bg-gray-50 px-3 py-5 text-center hover:border-blue-400 hover:bg-blue-50/40" data-drop>
             <span class="text-gray-400">{{ ui.icon("upload", "size-5") }}</span>
             <span class="text-sm font-medium text-gray-700">Choose or drop a file</span>
-            <span class="text-xs text-gray-500">Recorder or Kimodo .npz, ARDY .pkl</span>
+            <span class="text-xs text-gray-500">An action .npz saved here, a Kimodo .npz or an ARDY .pkl</span>
             <input id="play-file" type="file" accept=".npz,.pkl" class="sr-only" />
           </label>
-          <div class="flex items-center gap-x-2 whitespace-nowrap text-[13px] text-gray-700">
-            <label for="play-fps">Source FPS</label>
-            <input id="play-fps" type="number" min="1" max="240" step="1" placeholder="auto" class="{{ ui.small_input }} w-18 py-1.5 text-[13px]" />
-            <span class="text-xs text-gray-400">if the file has none</span>
-          </div>
-          <p class="flex items-center gap-x-1.5 text-xs text-amber-700">{{ ui.icon("alert", "size-3.5") }}Open only .pkl files you made yourself.</p>
         </div>
       </div>
 
       <div class="{{ ui.card }}">
-        <div class="{{ ui.card_header }}"><h3 class="{{ ui.card_title }}">Save a frame as an arm pose</h3></div>
-        <div class="space-y-3 p-4">
-          <p class="{{ ui.hint }} text-[13px]">Pause on the frame you want, name it, then pick the arm.</p>
-          <input id="capture-name" class="{{ ui.input }}" placeholder="Arm pose name, e.g. speak_3" autocomplete="off" />
-          <div class="grid grid-cols-2 gap-x-2">
-            <button type="button" class="{{ ui.button }}" data-capture="left_arm" disabled><span class="size-2 rounded-full bg-blue-600"></span>Save left arm</button>
-            <button type="button" class="{{ ui.button }}" data-capture="right_arm" disabled><span class="size-2 rounded-full bg-orange-500"></span>Save right arm</button>
+        <div class="{{ ui.card_header }}"><h3 class="{{ ui.card_title }}">Save a frame as a pose</h3></div>
+        <div class="space-y-2.5 p-4">
+          <p class="{{ ui.hint }} text-[13px]">Pause on the frame you want, then save it like on Record pose.</p>
+          {# The same Save as, Name, Save as Record pose. #}
+          <div class="flex items-center gap-x-2.5">
+            <span class="w-14 shrink-0 text-[13px] font-medium text-gray-700">Save as</span>
+            {{ ui.save_as_choice("capture-kind", [("left_arm", "Left arm", "bg-blue-600"), ("right_arm", "Right arm", "bg-orange-500"), ("composed", "Composed", "bg-violet-600")]) }}
+          </div>
+          <div class="flex items-center gap-x-2.5">
+            <label for="capture-name" class="w-14 shrink-0 text-[13px] font-medium text-gray-700">Name</label>
+            <input id="capture-name" data-enter="capture-save" class="{{ ui.input }}" placeholder="Pose name, e.g. speak_3" autocomplete="off" />
+            <button id="capture-save" type="button" class="{{ ui.button }}" disabled title="Pause on a frame first">Save</button>
           </div>
         </div>
       </div>

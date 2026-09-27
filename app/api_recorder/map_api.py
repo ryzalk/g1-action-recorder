@@ -207,6 +207,18 @@ def focus(command: Focus) -> dict:
     return {}
 
 
+class Highlight(BaseModel):
+    outline: list[tuple[float, float]] = Field(default_factory=list, max_length=10_000)
+    kind: Literal["ghost", "missing"] = "ghost"
+
+
+@router.post("/highlight")
+def highlight(command: Highlight) -> dict:
+    """The candidate chosen on the Check tab, fenced off in 3D; an empty outline takes the fence away."""
+    recorder_context.map.highlight([list(point) for point in command.outline], command.kind)
+    return {}
+
+
 @router.get("/candidates")
 def candidates(z_lo: float = MapInspectionConfig.CANDIDATE_Z_RANGE_REL[0],
                z_hi: float = MapInspectionConfig.CANDIDATE_Z_RANGE_REL[1],

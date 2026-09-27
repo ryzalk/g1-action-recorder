@@ -54,6 +54,29 @@ class ApiTest(unittest.TestCase):
         self.assertIn("already exists", conflict.json()["detail"])
         self.assertEqual(self.client.post("/api/poses", json={**body, "overwrite": True}).status_code, 200)
         self.assertIn("api_arm", self.client.get("/api/poses").json()["names"]["right_arm"])
+        # Record saves an arm or the whole robot as a composed pose (with its picture), never a base pose.
+        whole = self.client.post("/api/poses", json={"pose_type": "composed", "name": "api_whole",
+                                                     "joint_positions": home})
+        self.assertEqual(whole.status_code, 200)
+        self.assertTrue((DATA_DIR / "poses" / "composed" / "api_whole.png").exists())
+        base = self.client.post("/api/poses", json={"pose_type": "base", "name": "api_whole", "joint_positions": home})
+        self.assertEqual(base.status_code, 422)
+
+    def test_pose_preview_picture(self) -> None:
+        picture = self.client.get(f"/api/poses/base/{HOME}/preview.png")
+        self.assertEqual((picture.status_code, picture.headers["content-type"]), (200, "image/png"))
+        self.assertTrue(picture.content.startswith(bytes([0x89]) + b"PNG"))
+        arm = self.client.get("/api/poses/left_arm/concierge_speak_3/preview.png")
+        self.assertEqual(arm.status_code, 200)
+        self.assertNotEqual(arm.content, picture.content)
+        # A pose saved before pictures existed gets one on first request, kept beside it.
+        self.assertTrue((DATA_DIR / "poses" / "left_arm" / "concierge_speak_3.png").exists())
+        self.assertEqual(self.client.get("/api/poses/base/nothing_here/preview.png").status_code, 404)
+        # Deleting a pose takes its picture along to the trash.
+        self.client.post("/api/poses/compose", json={"base": HOME, "name": "api_gone"})
+        self.assertEqual(self.client.delete("/api/library/poses/composed/api_gone").status_code, 200)
+        self.assertFalse((DATA_DIR / "poses" / "composed" / "api_gone.png").exists())
+        self.assertTrue(list((DATA_DIR / ".trash").glob("*/poses/composed/api_gone.png")))
 
     def test_mirror_and_bad_joint(self) -> None:
         left = {"left_shoulder_roll_joint": 0.3, "left_shoulder_pitch_joint": 0.1, "left_shoulder_yaw_joint": 0.0,
@@ -68,19 +91,22 @@ class ApiTest(unittest.TestCase):
         left = self.client.get("/api/poses").json()["names"]["left_arm"][0]
         saved = self.client.post("/api/poses/compose", json={"base": HOME, "left_arm": left, "name": "api_mix"})
         self.assertEqual((saved.json()["pose_type"], saved.json()["source_parts"]),
-                         ("base", {"base": HOME, "left_arm": left}))
+                         ("composed", {"base": HOME, "left_arm": left}))
+        # Saved with its picture, beside the pose file.
+        picture = DATA_DIR / "poses" / "composed" / "api_mix.png"
+        self.assertTrue(picture.read_bytes().startswith(bytes([0x89]) + b"PNG"))
+        served = self.client.get("/api/poses/composed/api_mix/preview.png")
+        self.assertEqual(served.content, picture.read_bytes())
+        # Saving it again with another arm draws it again.
+        right = self.client.get("/api/poses").json()["names"]["right_arm"][0]
+        body = {"base": HOME, "left_arm": left, "right_arm": right, "name": "api_mix", "overwrite": True}
+        self.assertEqual(self.client.post("/api/poses/compose", json=body).status_code, 200)
+        self.assertNotEqual(picture.read_bytes(), served.content)
         library = self.client.get("/api/library").json()
-        entry = next(item for item in library["poses"]["base"] if item["name"] == "api_mix")
-        self.assertEqual(entry["made_from"], {"base": HOME, "left_arm": left})
-        arm = self.client.post("/api/poses/compose", json={"base": HOME, "left_arm": left, "name": "api_mix_arm",
-                                                           "pose_type": "left_arm"})
-        self.assertEqual(arm.json()["pose_type"], "left_arm")
-        arm_values = self.client.get("/api/poses/left_arm/api_mix_arm").json()["joint_values"]
-        self.assertTrue(all(joint.startswith("left_") for joint in arm_values))
-        refused = self.client.post("/api/poses/compose", json={"base": HOME, "name": "x", "pose_type": "composed"})
-        self.assertEqual(refused.status_code, 422)
+        entry = next(item for item in library["poses"]["composed"] if item["name"] == "api_mix")
+        self.assertEqual(entry["made_from"], {"base": HOME, "left_arm": left, "right_arm": right})
         draft = {"name": "api_action", "return_seconds": 1.0,
-                 "steps": [{"pose_type": "base", "pose_name": "api_mix", "move_seconds": 1.0, "hold_seconds": 0.2}]}
+                 "steps": [{"pose_type": "composed", "pose_name": "api_mix", "move_seconds": 1.0, "hold_seconds": 0.2}]}
         result = self.client.post("/api/actions", json=draft).json()
         self.assertEqual(result["npz_url"], "/api/actions/api_action/npz")
         self.assertEqual(self.client.get(result["npz_url"]).status_code, 200)
@@ -96,6 +122,16 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(self.client.post("/api/playback/seek", json={"index": 60}).json()["state"], "paused")
         captured = self.client.post("/api/playback/capture", json={"pose_type": "left_arm", "name": "api_capture"})
         self.assertIn("frame 61/126", captured.json()["notes"])
+        # The whole robot from the same frame: both arms from the frame, the waist as shown, with its picture.
+        whole = self.client.post("/api/playback/capture", json={"pose_type": "composed", "name": "api_capture_all"})
+        self.assertEqual(whole.json()["pose_type"], "composed")
+        values = self.client.get("/api/poses/composed/api_capture_all").json()["joint_values"]
+        arm = self.client.get("/api/poses/left_arm/api_capture").json()["joint_values"]
+        self.assertEqual({name: values[name] for name in arm}, arm)
+        self.assertIn("waist_yaw_joint", values)
+        self.assertTrue((DATA_DIR / "poses" / "composed" / "api_capture_all.png").exists())
+        refused = self.client.post("/api/playback/capture", json={"pose_type": "base", "name": "api_capture_base"})
+        self.assertEqual(refused.status_code, 422)
         garbage = self.client.post("/api/playback/import", params={"filename": "x.npz"}, content=b"hello")
         self.assertEqual(garbage.status_code, 422)
 
@@ -105,6 +141,12 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(self.client.delete(f"/api/library/poses/base/{HOME}").status_code, 422)
         exported = self.client.get(f"/api/library/actions/{name}/export")
         self.assertEqual(exported.headers["content-type"], "application/zip")
+        self.assertIn(f'filename="{name}.zip"', exported.headers["content-disposition"])
+        several = self.client.get("/api/library/actions/export",
+                                  params={"names": [name, "concierge_wave_left"]})
+        self.assertRegex(several.headers["content-disposition"], r'filename="actions_2_[0-9-]+\.zip"')
+        self.assertEqual(self.client.get("/api/library/actions/export").status_code, 422)
+        self.assertEqual(self.client.get("/api/library/actions/export", params={"names": ["nope"]}).status_code, 404)
         self.assertEqual(self.client.delete(f"/api/library/actions/{name}").status_code, 200)
         self.assertEqual(self.client.delete(f"/api/library/actions/{name}").status_code, 404)
         imported = self.client.post("/api/library/actions/import", params={"filename": f"{name}.zip"},
@@ -174,7 +216,13 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(self.client.post("/api/map/undo").json()["command"]["id"], 2)
         self.assertEqual(self.client.post("/api/map/history/jump/0").json()["moved"], 1)
         self.assertEqual(self.client.post("/api/map/redo").json()["command"]["id"], 1)
-        self.assertGreater(len(self.client.get("/api/map/candidates").json()), 0)
+        found = self.client.get("/api/map/candidates").json()
+        self.assertGreater(len(found), 0)
+        # Fencing one off in 3D and taking the fence away (the 3D server isn't running here: a no-op).
+        body = {"outline": found[0]["polygon"], "kind": found[0]["kind"]}
+        self.assertEqual(self.client.post("/api/map/highlight", json=body).status_code, 200)
+        self.assertEqual(self.client.post("/api/map/highlight", json={"outline": []}).status_code, 200)
+        self.assertEqual(self.client.post("/api/map/highlight", json={"kind": "other"}).status_code, 422)
         self.assertEqual(self.client.post("/api/map/edit", json={**erase, "tool": "nope"}).status_code, 422)
         saved = self.client.post("/api/map/save").json()
         self.assertFalse(saved["history"]["dirty"])

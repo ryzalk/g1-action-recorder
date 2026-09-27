@@ -69,7 +69,7 @@ class MotionFileHelper:
         self.arm_joint_names = tuple(arm_joint_names)
         self.projections = self._load_projections(mjcf_path)
 
-    def read_kimodo(self, arrays: dict[str, np.ndarray], fps: float | None) -> ImportedMotion:
+    def read_kimodo(self, arrays: dict[str, np.ndarray], fps: float) -> ImportedMotion:
         """Kimodo NPZ: local_rot_mats or global_rot_mats; an embedded fps wins over the one given."""
         if "local_rot_mats" in arrays:
             rotations = arrays["local_rot_mats"]
@@ -81,8 +81,6 @@ class MotionFileHelper:
             raise ValueError("Kimodo file has neither local_rot_mats nor global_rot_mats")
         if "fps" in arrays:
             fps = float(arrays["fps"])
-        if not fps:
-            raise ValueError("This Kimodo file has no FPS. Enter the source FPS and load it again.")
         motion = ImportedMotion(positions, float(fps), int(np.shape(rotations)[-3]))
         return motion
 

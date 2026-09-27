@@ -1,11 +1,11 @@
 /* Record pose: 17 sliders in degrees. Open lists every pose; Save as decides which groups are edited and what Save writes. */
 
 const POSE_TYPES = {
-  base: { label: "base", groups: ["waist", "left_arm", "right_arm"] },
+  composed: { label: "composed", groups: ["waist", "left_arm", "right_arm"] },
   left_arm: { label: "left-arm", groups: ["left_arm"] },
   right_arm: { label: "right-arm", groups: ["right_arm"] },
 };
-// Open lists these, in this order. A composed pose covers the whole robot, so it saves again as a base pose.
+// Open lists these, in this order. An arm pose saves again as that arm; a base or composed one as composed.
 const OPEN_GROUPS = [["base", "Base"], ["composed", "Composed"], ["left_arm", "Left arm"], ["right_arm", "Right arm"]];
 
 class RecordTab {
@@ -27,6 +27,7 @@ class RecordTab {
       const joint = row.dataset.joint;
       const slider = row.querySelector("[data-slider]");
       const number = row.querySelector("[data-number]");
+      row.querySelector("[data-joint-reset]")?.addEventListener("click", () => this.setJoint(joint, Number(row.dataset.home)));
       slider.addEventListener("pointerdown", () => { this.held = joint; });
       slider.addEventListener("pointerup", () => { this.held = null; });
       slider.addEventListener("input", () => this.setJoint(joint, Number(slider.value) / DEGREES_PER_RADIAN));
@@ -76,17 +77,23 @@ class RecordTab {
   }
 
   showKind() {
-    // Groups the chosen pose type doesn't save fold away.
+    // The other arm folds away when an arm is saved. The waist always shows, locked: a composed pose takes
+    // it from its base, and an arm pose doesn't keep it.
     const { label, groups } = POSE_TYPES[this.kind()];
     for (const card of this.cards) {
-      const collapsed = !groups.includes(card.dataset.group);
-      card.dataset.collapsed = String(collapsed);
+      const saved = groups.includes(card.dataset.group);
+      const waist = card.dataset.group === "waist";
+      card.dataset.collapsed = String(!saved && !waist);
+      card.dataset.unsaved = String(waist);
       card.querySelector("[data-collapsed-note]").textContent = `Not part of a ${label} pose`;
+      card.querySelector("[data-unsaved-note]").textContent = "Shown only";
     }
   }
 
+  // A pose type (left_arm, right_arm, composed) or one card (waist, left_arm, right_arm).
   groupJoints(group) {
-    return this.rows.filter((row) => group === "base" || row.closest("[data-group]").dataset.group === group);
+    const groups = POSE_TYPES[group]?.groups || [group];
+    return this.rows.filter((row) => groups.includes(row.closest("[data-group]").dataset.group));
   }
 
   setJoint(joint, radians) {
@@ -109,6 +116,9 @@ class RecordTab {
     const degrees = (radians * DEGREES_PER_RADIAN).toFixed(1);
     if (joint !== this.held) row.querySelector("[data-slider]").value = degrees;
     row.querySelector("[data-number]").value = degrees;
+    // Already at concierge_init: nothing to reset. (The waist has no reset: it is set by the base pose.)
+    const reset = row.querySelector("[data-joint-reset]");
+    if (reset) reset.disabled = Math.abs(radians - Number(row.dataset.home)) < 1e-4;
   }
 
   reset(group) {
@@ -119,7 +129,7 @@ class RecordTab {
 
   startNew() {
     // Back to the home pose with nothing opened and no name.
-    this.reset("base");
+    this.reset("composed");
     this.openSelect.value = "";
     this.nameInput.value = "";
     this.nameInput.focus();
@@ -138,8 +148,7 @@ class RecordTab {
     const result = await run(null, () => api("POST", `/api/poses/${type}/${encodeURIComponent(name)}/show`));
     if (!result) return;
     this.nameInput.value = name;
-    // Saving again keeps the pose's own type; a composed pose saves as a base pose.
-    this.setKind(type === "composed" ? "base" : type);
+    this.setKind(type === "base" ? "composed" : type);
   }
 
   async save() {

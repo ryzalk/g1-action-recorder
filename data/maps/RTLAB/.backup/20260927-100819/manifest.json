@@ -1,0 +1,38 @@
+{
+  "map_id": "RTLAB",
+  "name": "RTLAB",
+  "created_utc": 1790154364.6835837,
+  "resolution": 0.05,
+  "origin": [
+    -3.85,
+    -6.75,
+    0.0
+  ],
+  "tour_points": [
+    {
+      "name": "点1",
+      "x": -0.37,
+      "y": 2.88,
+      "yaw": 0.0,
+      "actions": [],
+      "tts_text": "",
+      "dwell_s": 0.0,
+      "reach_threshold": 0.35,
+      "yaw_threshold": 0.5,
+      "tts_duration_s": 0.0
+    },
+    {
+      "name": "点2",
+      "x": 9.13,
+      "y": 4.63,
+      "yaw": 0.0,
+      "actions": [],
+      "tts_text": "",
+      "dwell_s": 0.0,
+      "reach_threshold": 0.35,
+      "yaw_threshold": 0.5,
+      "tts_duration_s": 0.0
+    }
+  ],
+  "checksums": {}
+}

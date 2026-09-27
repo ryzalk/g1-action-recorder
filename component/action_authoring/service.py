@@ -130,50 +130,59 @@ class ActionService:
             self.files.move(npz_path, trash_dir / "actions" / "trajectories" / npz_path.name)
         logger.info("Moved action {} to {}", name, trash_dir)
 
-    def export_bundle(self, name: str) -> bytes:
-        """A zip laid out like data/: the definition and its compiled trajectory together (an action needs
-        both to be played), plus every pose it uses so it can be edited again. Unzipped into a data folder
-        it is ready to use. An action never compiled is compiled now, so the zip is never half an action."""
-        action = self.load(name)
-        npz_path = self.trajectory_path(action.name)
-        if npz_path.exists():
-            trajectory = npz_path.read_bytes()
-        else:
-            trajectory = self.files.npz_bytes(self.compile(action).to_arrays(self.schema.model_id))
-        files = {f"{self.DEFINITION_DIR}/{action.name}.json": (self.action_dir / f"{action.name}.json").read_bytes(),
-                 f"{self.TRAJECTORY_DIR}/{action.name}.npz": trajectory}
-        for pose_type, pose_name in self.poses_of(action):
-            pose = self.poses.load(pose_type, pose_name)
-            files[f"poses/{pose_type.value}/{pose_name}.json"] = json.dumps(
-                pose.to_dict(self.schema.model_id), ensure_ascii=False, indent=2).encode("utf-8")
+    def export_bundle(self, names: list[str]) -> bytes:
+        """One zip for one, several or all actions, laid out like data/: each definition with its compiled
+        trajectory (an action needs both to be played), plus every pose they use, once, with its picture,
+        so they can be edited again. Unzipped into a data folder it is ready to use. An action never
+        compiled is compiled now, so the zip never holds half an action."""
+        files = {}
+        for name in names:
+            action = self.load(name)
+            npz_path = self.trajectory_path(action.name)
+            if npz_path.exists():
+                trajectory = npz_path.read_bytes()
+            else:
+                trajectory = self.files.npz_bytes(self.compile(action).to_arrays(self.schema.model_id))
+            files[f"{self.DEFINITION_DIR}/{action.name}.json"] = (self.action_dir / f"{action.name}.json").read_bytes()
+            files[f"{self.TRAJECTORY_DIR}/{action.name}.npz"] = trajectory
+            for pose_type, pose_name in self.poses_of(action):
+                pose = self.poses.load(pose_type, pose_name)
+                files[f"poses/{pose_type.value}/{pose_name}.json"] = json.dumps(
+                    pose.to_dict(self.schema.model_id), ensure_ascii=False, indent=2).encode("utf-8")
+                picture = self.poses.picture_path(pose_type, pose_name)
+                if picture.exists():
+                    files[f"poses/{pose_type.value}/{pose_name}.png"] = picture.read_bytes()
         bundle = self.files.pack(files)
         return bundle
 
-    def read_bundle(self, content: bytes, filename: str = "file") -> tuple[Action, list[Pose], float]:
-        """The action, the poses packed with it and the sample rate it was compiled at; nothing is saved.
-        Takes the data/-style layout and the older one (action.json + trajectory.npz at the top)."""
+    def read_bundle(self, content: bytes, filename: str = "file") -> tuple[list[tuple[Action, float]], list[Pose]]:
+        """The actions in the zip, each with the sample rate it was compiled at, and the poses packed with
+        them; nothing is saved. Takes the data/-style layout (one or many actions) and the older one-action
+        layout (action.json + trajectory.npz at the top)."""
         try:
             files = self.files.unpack(content)
         except ValueError as error:
             raise ValueError(f"{filename} isn't an action zip; make one with Export in the Library") from error
-        definitions = [path for path in files if path.startswith(f"{self.DEFINITION_DIR}/") and path.endswith(".json")]
-        definition = definitions[0] if len(definitions) == 1 else "action.json"
-        if definition not in files:
+        definitions = sorted(path for path in files
+                             if path.startswith(f"{self.DEFINITION_DIR}/") and path.endswith(".json"))
+        if not definitions and "action.json" in files:
+            definitions = ["action.json"]
+        if not definitions:
             raise ValueError(f"{filename} has no action definition; make action zips with Export in the Library")
-        try:
-            action = Action.from_dict(json.loads(files[definition].decode("utf-8")))
-            action.name = clean_name(action.name)
-        except (ValueError, KeyError, TypeError) as error:
-            raise ValueError(f"{filename} has an unreadable action definition") from error
+        actions = []
+        for definition in definitions:
+            try:
+                action = Action.from_dict(json.loads(files[definition].decode("utf-8")))
+                action.name = clean_name(action.name)
+            except (ValueError, KeyError, TypeError) as error:
+                raise ValueError(f"{filename} has an unreadable action definition ({definition})") from error
+            npz = ("trajectory.npz" if definition == "action.json"
+                   else f"{self.TRAJECTORY_DIR}/{Path(definition).stem}.npz")
+            sample_hz = float(self.files.read_npz_bytes(files[npz])["fps"]) if npz in files else ActionConfig.SAMPLE_HZ
+            actions.append((action, sample_hz))
         poses = [self.poses.parse(data, path) for path, data in sorted(files.items())
                  if path.startswith("poses/") and path.endswith(".json")]
-        trajectory = next((data for path, data in files.items()
-                           if path.endswith(".npz") and (path.startswith(f"{self.TRAJECTORY_DIR}/")
-                                                         or path == "trajectory.npz")), None)
-        sample_hz = ActionConfig.SAMPLE_HZ
-        if trajectory is not None:
-            sample_hz = float(self.files.read_npz_bytes(trajectory)["fps"])
-        bundle = (action, poses, sample_hz)
+        bundle = (actions, poses)
         return bundle
 
 def demo_action_service() -> None:
@@ -192,9 +201,10 @@ def demo_action_service() -> None:
     logger.info("A new action compiles to {} samples", service.compile(wave).sample_count)
     logger.info("Poses used by more than one action: {}",
                 {f"{t.value}/{n}": len(users) for (t, n), users in service.references().items() if len(users) > 1})
-    bundle = service.export_bundle("concierge_wave_left")
-    action, poses, sample_hz = service.read_bundle(bundle, "concierge_wave_left.zip")
-    logger.info("Bundle of {} bytes: {} with {} at {} Hz", len(bundle), action.name, [p.name for p in poses], sample_hz)
+    bundle = service.export_bundle(service.names())
+    actions, poses = service.read_bundle(bundle, "actions.zip")
+    logger.info("Bundle of {:,} bytes: {} at {} Hz, with {} poses", len(bundle), [a.name for a, _ in actions],
+                sorted({hz for _, hz in actions}), len(poses))
 
 
 def main() -> None:

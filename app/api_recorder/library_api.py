@@ -9,7 +9,10 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-from fastapi import APIRouter, Request, Response
+from datetime import datetime
+from typing import Annotated
+
+from fastapi import APIRouter, Query, Request, Response
 from loguru import logger
 
 from app.context import recorder_context
@@ -46,12 +49,21 @@ async def import_pose(request: Request, filename: str, overwrite: bool = False) 
     return result
 
 
+@router.get("/actions/export")
+def export_actions(names: Annotated[list[str], Query(min_length=1)]) -> Response:
+    """One zip for the actions named (?names=a&names=b): definitions, NPZs and every pose they need;
+    Import action reads it back."""
+    bundle = recorder_context.actions.export_bundle(names)
+    filename = f"{names[0]}.zip" if len(names) == 1 else f"actions_{len(names)}_{datetime.now():%Y%m%d-%H%M%S}.zip"
+    response = Response(bundle, media_type="application/zip",
+                        headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+    return response
+
+
 @router.get("/actions/{name}/export")
 def export_action(name: str) -> Response:
-    """A zip of the action, its NPZ and every pose it needs; Import action reads it back."""
-    bundle = recorder_context.actions.export_bundle(name)
-    response = Response(bundle, media_type="application/zip",
-                        headers={"Content-Disposition": f'attachment; filename="{name}.zip"'})
+    """The same zip for one action (Build action's Export .zip link)."""
+    response = export_actions([name])
     return response
 
 
@@ -81,6 +93,10 @@ def demo_library_api() -> None:
     logger.info("Export {}: {} bytes, {}", name, len(bundle.content), bundle.headers["content-disposition"])
     again = client.post("/api/library/actions/import", params={"filename": f"{name}.zip"}, content=bundle.content)
     logger.info("Import it back: {}", again.json())
+    names = [action["name"] for action in listing["actions"]]
+    everything = client.get("/api/library/actions/export", params={"names": names})
+    logger.info("Export all {}: {:,} bytes, {}", len(names), len(everything.content),
+                everything.headers["content-disposition"])
     home = client.delete(f"/api/library/poses/base/{listing['home']}")
     logger.info("Delete {}: {} {}", listing["home"], home.status_code, home.json()["detail"])
 

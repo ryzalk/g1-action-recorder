@@ -1,4 +1,4 @@
-"""The shared player: play, pause, stop, seek, loop, import a file, capture an arm from the paused frame."""
+"""The shared player: play, pause, stop, seek, loop, import a file, save the paused frame as a pose."""
 
 from __future__ import annotations
 
@@ -76,15 +76,15 @@ def loop(command: Loop) -> dict:
 
 
 @router.post("/import")
-async def import_file(request: Request, filename: str, fps: float | None = None) -> dict:
+async def import_file(request: Request, filename: str) -> dict:
     """The raw file is the request body; filename decides how it is read (.npz or .pkl)."""
-    snapshot = recorder_context.import_motion(filename, await request.body(), fps)
+    snapshot = recorder_context.import_motion(filename, await request.body())
     return snapshot
 
 
 @router.post("/capture")
 def capture(command: Capture) -> dict:
-    pose = recorder_context.capture_arm_pose(command.pose_type, command.name, command.overwrite)
+    pose = recorder_context.capture_pose(command.pose_type, command.name, command.overwrite)
     result = {"name": pose.name, "pose_type": pose.pose_type.value, "notes": pose.notes}
     return result
 

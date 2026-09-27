@@ -5,7 +5,9 @@ class ActionTab {
     this.openSelect = document.getElementById("action-open");
     this.nameInput = document.getElementById("action-name");
     this.body = document.getElementById("action-steps");
-    this.addSelect = document.getElementById("action-add-pose");
+    this.poseDialog = document.getElementById("action-pose-dialog");
+    this.choices = [];
+    this.poseFilter = "";
     this.sampleHz = document.getElementById("action-sample-hz");
     this.saved = document.getElementById("action-saved");
     this.steps = [];
@@ -16,7 +18,15 @@ class ActionTab {
 
   start() {
     document.getElementById("action-new").addEventListener("click", () => this.load({ name: "", steps: [], return_seconds: this.defaultMove }));
-    document.getElementById("action-add").addEventListener("click", () => this.add());
+    document.getElementById("action-add").addEventListener("click", () => this.openPicker());
+    this.poseDialog.querySelector("[data-pose-close]").addEventListener("click", () => this.poseDialog.close());
+    this.poseDialog.querySelector("[data-pose-search]").addEventListener("input", () => this.renderPicker());
+    for (const button of this.poseDialog.querySelectorAll("[data-pose-filter]")) {
+      button.addEventListener("click", () => {
+        this.poseFilter = button.dataset.poseFilter;
+        this.renderPicker();
+      });
+    }
     document.getElementById("action-preview").addEventListener("click", (event) => this.preview(event.currentTarget));
     document.getElementById("action-save").addEventListener("click", (event) => this.save(event.currentTarget));
     this.openSelect.addEventListener("change", () => this.open());
@@ -29,10 +39,8 @@ class ActionTab {
     this.defaultMove = listing.default_move_seconds;
     if (!this.sampleHz.value) this.sampleHz.value = listing.sample_hz;
     fillSelect(this.openSelect, [{ options: listing.actions.map((name) => ({ value: name, text: name })) }], "Open a saved action…");
-    const byType = (type) => listing.choices.filter((choice) => choice.pose_type === type)
-      .map((choice) => ({ value: `${choice.pose_type}/${choice.pose_name}`, text: choice.pose_name }));
-    fillSelect(this.addSelect, [{ label: "Base", options: byType("base") }, { label: "Composed", options: byType("composed") }],
-      "Choose a pose to add…");
+    // Base poses first, then composed ones.
+    this.choices = [...listing.choices].sort((a, b) => (a.pose_type === "base" ? 0 : 1) - (b.pose_type === "base" ? 0 : 1));
     this.render();
   }
 
@@ -52,15 +60,56 @@ class ActionTab {
     this.render();
   }
 
-  add() {
-    if (!this.addSelect.value) {
-      toast("Choose a pose to add first", "error");
+  // ---- the pose picker: every pose an action can use, shown as a picture ----
+  openPicker() {
+    this.poseDialog.showModal();
+    this.poseDialog.querySelector("[data-pose-search]").value = "";
+    this.renderPicker();
+  }
+
+  renderPicker() {
+    const query = this.poseDialog.querySelector("[data-pose-search]").value.trim().toLowerCase();
+    for (const button of this.poseDialog.querySelectorAll("[data-pose-filter]")) button.dataset.active = String(button.dataset.poseFilter === this.poseFilter);
+    const shown = this.choices.filter((choice) => (!this.poseFilter || choice.pose_type === this.poseFilter)
+      && (!query || choice.pose_name.toLowerCase().includes(query)));
+    this.poseDialog.querySelector("[data-pose-count]").textContent = `${shown.length} of ${this.choices.length}`;
+    const grid = this.poseDialog.querySelector("[data-pose-grid]");
+    if (shown.length === 0) {
+      grid.innerHTML = '<p class="col-span-full py-10 text-center text-sm text-gray-400">No pose matches</p>';
       return;
     }
-    const [type, name] = this.addSelect.value.split("/");
+    grid.replaceChildren(...shown.map((choice) => this.poseCard(choice)));
+  }
+
+  poseCard(choice) {
+    const card = Object.assign(document.createElement("button"), { type: "button", title: `Add ${choice.pose_name}` });
+    card.dataset.pose = `${choice.pose_type}/${choice.pose_name}`;
+    card.className = "relative overflow-hidden rounded-[10px] border border-gray-200 bg-white text-start hover:border-blue-400 hover:ring-1 hover:ring-blue-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500";
+    const picture = this.picture(choice, "aspect-[4/5] w-full bg-gray-100");
+    const badge = Object.assign(document.createElement("span"), {
+      className: `absolute start-1.5 top-1.5 rounded px-1 py-px text-[10px] font-medium ${choice.pose_type === "base" ? "bg-white text-gray-600" : "bg-violet-50 text-violet-700"}`,
+      textContent: choice.pose_type === "base" ? "Base" : "Composed",
+    });
+    // Names often differ only at the end (concierge_speak_1 … _10), so they wrap instead of being cut.
+    const label = Object.assign(document.createElement("div"), {
+      className: "break-all border-t border-gray-100 px-2 py-1.5 text-xs font-medium leading-4 text-gray-800", textContent: choice.pose_name,
+    });
+    card.append(picture, badge, label);
+    card.addEventListener("click", () => this.add(choice.pose_type, choice.pose_name));
+    return card;
+  }
+
+  picture(choice, className) {
+    const url = `/api/poses/${choice.pose_type}/${encodeURIComponent(choice.pose_name)}/preview.png`;
+    return Object.assign(document.createElement("img"), { src: url, alt: choice.pose_name, loading: "lazy", className: `${className} object-cover` });
+  }
+
+  add(type, name) {
+    this.poseDialog.close();
     this.steps.push({ pose_type: type, pose_name: name, move_seconds: this.defaultMove, hold_seconds: 0 });
     this.render();
     this.show(type, name);
+    toast(`Added ${name} as step ${this.steps.length + 1}`, "info");
   }
 
   show(type, name) {
@@ -79,8 +128,8 @@ class ActionTab {
 
   fixedRow(number, label, moveSeconds) {
     const row = this.row(number);
-    row.className = "text-gray-400";
-    const pose = this.cell("", "py-2.5");
+    // Only the label is grey (it can't be changed); the Return move time is an ordinary field.
+    const pose = this.cell("", "py-2.5 text-gray-400");
     pose.innerHTML = '<span class="inline-flex items-center gap-x-1.5"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
     pose.firstChild.append(`${label} · ${this.home}`);
     row.append(pose);
@@ -97,9 +146,10 @@ class ActionTab {
     const pose = this.cell("", "py-1.5");
     const showButton = document.createElement("button");
     showButton.type = "button";
-    showButton.className = "block max-w-full truncate text-start font-medium text-gray-800 hover:text-blue-600";
-    showButton.textContent = step.pose_name;
+    showButton.className = "flex max-w-full items-center gap-x-2 text-start font-medium text-gray-800 hover:text-blue-600";
     showButton.title = "Show this pose";
+    showButton.append(this.picture({ pose_type: step.pose_type, pose_name: step.pose_name }, "h-10 w-8 shrink-0 rounded border border-gray-200 bg-gray-100"),
+      Object.assign(document.createElement("span"), { className: "truncate", textContent: step.pose_name }));
     showButton.addEventListener("click", () => this.show(step.pose_type, step.pose_name));
     pose.append(showButton);
     const move = this.cell("", "py-1.5 pe-2");
@@ -134,7 +184,7 @@ class ActionTab {
     input.min = String(minimum);
     input.step = "0.1";
     input.value = String(value);
-    input.className = "w-full rounded-lg border border-gray-200 px-2 py-1 text-end text-[13px] tabular-nums [appearance:textfield] focus:border-blue-500 focus:outline-hidden [&::-webkit-inner-spin-button]:appearance-none";
+    input.className = "w-full rounded-lg border border-gray-200 bg-white px-2 py-1 text-end text-[13px] tabular-nums text-gray-900 [appearance:textfield] focus:border-blue-500 focus:outline-hidden [&::-webkit-inner-spin-button]:appearance-none";
     input.addEventListener("change", () => {
       onChange(Math.max(minimum, Number(input.value) || minimum));
       this.render();
