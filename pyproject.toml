@@ -1,7 +1,7 @@
 [project]
 name = "g1-action-recorder"
-version = "0.1.0"
-description = "Pose and action recording tools for the Unitree G1 robot."
+version = "0.2.0"
+description = "Record, compose, and play Unitree G1 upper-body poses and actions."
 readme = "README.md"
 requires-python = ">=3.10,<3.11"
 dependencies = [
@@ -10,31 +10,38 @@ dependencies = [
     "loguru>=0.7.3",
     "mujoco>=3.3,<4",
     "numpy>=1.26,<3",
-    "pillow>=11,<13",
+    "opencv-python-headless>=4.10,<6",
     "pin-pink>=4.4,<5",
     "python-dotenv>=1,<2",
+    "python-lzf>=0.2.6",
+    "pyyaml>=6,<7",
     "quadprog>=0.1,<1",
     "requests>=2.32,<3",
+    "scipy>=1.13,<2",
     "uvicorn>=0.52,<1",
     "viser[urdf]>=1.0,<2",
 ]
 
 [dependency-groups]
 dev = [
+    "httpx2>=2.13.1",
     "ruff>=0.11",
 ]
 
-[build-system]
-requires = ["setuptools>=77"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools.packages.find]
-include = ["app*", "component*", "config*", "util*"]
+[tool.uv]
+package = false
+# PyPI pinocchio (`pin`) has no Windows wheels; on Windows it comes from conda-forge instead (see README).
+override-dependencies = ["pin>=3.4; sys_platform != 'win32'"]
+required-environments = [
+    "sys_platform == 'win32' and platform_machine == 'AMD64'",
+    "sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
 
 [tool.ruff]
 target-version = "py310"
-line-length = 100
-extend-exclude = ["AGENTS.md"]
+line-length = 120
 
 [tool.ruff.lint]
 select = ["B", "E", "F", "I", "UP"]
+# Every module puts the project root on sys.path before its own imports, so it runs from an IDE right-click.
+ignore = ["E402"]

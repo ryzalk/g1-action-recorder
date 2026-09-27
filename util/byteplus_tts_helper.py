@@ -1,389 +1,139 @@
+"""BytePlus Seed Speech 2.0 (unidirectional streaming TTS): one text and one style prompt in, raw PCM out."""
+
 from __future__ import annotations
 
-import base64
-import json
-import os
-import wave
-from collections.abc import Iterator
-from dataclasses import dataclass
+import sys
 from pathlib import Path
-from typing import Any
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
+
+import base64
+import binascii
+import codecs
+import json
+from collections.abc import Iterator, Mapping
 from uuid import uuid4
 
 import requests
 from loguru import logger
 
-
-class BytePlusTtsError(RuntimeError):
-    """Raised when BytePlus does not return valid synthesized audio."""
+from config.settings import ByteplusTtsConfig, SpeechConfig, use_utf8_output
 
 
-@dataclass(frozen=True, slots=True)
-class TtsSpeaker:
-    id: str
-    name: str
-    description: str
+class ByteplusTtsError(RuntimeError):
+    """BytePlus didn't return usable audio."""
 
 
-@dataclass(frozen=True, slots=True)
-class TtsTone:
-    id: str
-    name: str
-    instruction: str
+class ByteplusTtsHelper:
+    # Codes BytePlus answers with, in words a user can act on.
+    KNOWN_ERRORS = {40402003: "the text is too long", 45000000: "this voice isn't available to the account",
+                    55000000: "server error; check that the voice matches the resource"}
 
-
-class BytePlusTtsHelper:
-    """Generate a 16 kHz mono WAV file with BytePlus TTS 2.0."""
-
-    URL = "https://voice.ap-southeast-1.bytepluses.com/api/v3/tts/unidirectional"
-    RESOURCE_ID = "seed-tts-2.0"
-    APP_KEY = "aGjiRDfUWi"
-    DEFAULT_SPEAKER = "zh_male_m191_uranus_bigtts"
-    DEFAULT_TONE = "warm"
-    SPEAKERS = (
-        TtsSpeaker(DEFAULT_SPEAKER, "Kian (recommended)", "Male · steady and clear"),
-        TtsSpeaker(
-            "zh_female_cancan_uranus_bigtts",
-            "Corinne",
-            "Female · vivid and energetic",
-        ),
-        TtsSpeaker(
-            "zh_female_shuangkuaisisi_uranus_bigtts",
-            "Gigi",
-            "Female · steady and composed",
-        ),
-        TtsSpeaker(
-            "zh_female_yingyujiaoxue_uranus_bigtts",
-            "Jean",
-            "Female · clear and encouraging",
-        ),
-        TtsSpeaker(
-            "en_male_tim_uranus_bigtts",
-            "Tim",
-            "Male · clear and friendly",
-        ),
-    )
-    TONES = (
-        TtsTone(
-            "natural",
-            "Natural",
-            "请自然、清晰地朗读。Speak naturally with clear, balanced delivery.",
-        ),
-        TtsTone(
-            "warm",
-            "Warm",
-            "请用明显温暖、友好、亲切的语气朗读。"
-            "Speak with an unmistakably warm and friendly tone.",
-        ),
-        TtsTone(
-            "cheerful",
-            "Cheerful",
-            "请带着笑意，用明显欢快、活泼的语气朗读。"
-            "Speak with a clearly cheerful, smiling, upbeat emotion and lively "
-            "intonation.",
-        ),
-        TtsTone(
-            "calm",
-            "Calm",
-            "请用明显平静、舒缓、令人安心的语气慢稳地朗读。"
-            "Speak calmly with soothing, reassuring, steady delivery.",
-        ),
-        TtsTone(
-            "energetic",
-            "Energetic",
-            "请用明显有活力、兴奋、充满热情的语气朗读。"
-            "Speak with strongly energetic, excited enthusiasm and dynamic "
-            "intonation.",
-        ),
-        TtsTone(
-            "serious",
-            "Serious",
-            "请用明显严肃、沉稳、权威的语气朗读。"
-            "Speak with a distinctly serious, composed, authoritative tone.",
-        ),
-    )
-
-    def __init__(self, api_key: str, **kwargs: object) -> None:
+    def __init__(self, api_key: str = ByteplusTtsConfig.API_KEY, **kwargs) -> None:
         self.api_key = api_key.strip()
-        self.speaker = str(kwargs.get("speaker", self.DEFAULT_SPEAKER))
-        self.sample_rate = int(kwargs.get("sample_rate", 16000))
-        self.timeout = kwargs.get("timeout", (5.0, 60.0))
+        self.url = kwargs.get("url", ByteplusTtsConfig.URL)
+        self.timeout = kwargs.get("timeout", ByteplusTtsConfig.TIMEOUT)
         self.session = kwargs.get("session") or requests.Session()
 
-        if not self.api_key:
-            raise ValueError("BytePlus api_key cannot be empty")
-        if self.sample_rate != 16000:
-            raise ValueError("G1 playback requires a 16000 Hz sample rate")
-        self.speaker_option(self.speaker)
+    @property
+    def configured(self) -> bool:
+        return bool(self.api_key)
 
-    def generate(
-        self,
-        text: str,
-        output_path: Path,
-        *,
-        speaker: str | None = None,
-        tone: str | None = None,
-        emotion_strength: int = 4,
-        speech_rate: int = 0,
-        loudness_rate: int = 0,
-        pitch: int = 0,
-        style_instruction: str = "",
-    ) -> Path:
-        spoken_text = text.strip()
-        audio_path = output_path.resolve()
-        selected_speaker = self.speaker_option(speaker or self.speaker)
-        selected_tone = self.tone_option(tone or self.DEFAULT_TONE)
-        self.validate_delivery_parameters(
-            emotion_strength=emotion_strength,
-            speech_rate=speech_rate,
-            loudness_rate=loudness_rate,
-            pitch=pitch,
-            style_instruction=style_instruction,
-        )
-        if not spoken_text:
-            raise ValueError("TTS text cannot be empty")
-        if audio_path.suffix.lower() != ".wav":
-            raise ValueError("BytePlus TTS output must use the .wav extension")
-
-        pcm_audio = self._request_pcm(
-            spoken_text,
-            speaker=selected_speaker.id,
-            tone=selected_tone,
-            emotion_strength=emotion_strength,
-            speech_rate=speech_rate,
-            loudness_rate=loudness_rate,
-            pitch=pitch,
-            style_instruction=style_instruction,
-        )
-        self._write_wav(audio_path, pcm_audio)
-        logger.info("BytePlus generated audio file {}", audio_path)
-        return audio_path
-
-    def _request_pcm(
-        self,
-        text: str,
-        *,
-        speaker: str,
-        tone: TtsTone,
-        emotion_strength: int,
-        speech_rate: int,
-        loudness_rate: int,
-        pitch: int,
-        style_instruction: str,
-    ) -> bytes:
-        logger.info(
-            "Requesting BytePlus TTS 2.0 speaker {} for {} characters",
-            speaker,
-            len(text),
-        )
-        try:
-            response = self.session.post(
-                self.URL,
-                headers=self._headers(),
-                json=self._payload(
-                    text,
-                    speaker=speaker,
-                    tone=tone.id,
-                    emotion_strength=emotion_strength,
-                    speech_rate=speech_rate,
-                    loudness_rate=loudness_rate,
-                    pitch=pitch,
-                    style_instruction=style_instruction,
-                ),
-                stream=True,
-                timeout=self.timeout,
-            )
-        except requests.RequestException as error:
-            raise BytePlusTtsError(
-                "Could not connect to the BytePlus TTS service"
-            ) from error
-        pcm_audio = bytearray()
-        try:
-            response.raise_for_status()
-            response.encoding = "utf-8"
-            for event in self._events(response):
-                response_code = int(event.get("code", 0))
-                if response_code == 20000000:
-                    break
-                if response_code != 0:
-                    message = event.get("message", "unknown error")
-                    raise BytePlusTtsError(
-                        f"BytePlus TTS failed with code {response_code}: {message}"
-                    )
-                encoded_audio = event.get("data")
-                if encoded_audio:
-                    pcm_audio.extend(base64.b64decode(encoded_audio, validate=True))
-        except requests.RequestException as error:
-            raise BytePlusTtsError("BytePlus TTS request failed") from error
-        except (ValueError, json.JSONDecodeError) as error:
-            raise BytePlusTtsError("BytePlus returned malformed audio data") from error
-        finally:
-            response.close()
-
-        if not pcm_audio:
-            raise BytePlusTtsError("BytePlus returned no audio")
-
-        complete_pcm_audio = bytes(pcm_audio)
-        return complete_pcm_audio
-
-    def _write_wav(self, audio_path: Path, pcm_audio: bytes) -> None:
-        audio_path.parent.mkdir(parents=True, exist_ok=True)
-        temporary_path = audio_path.with_suffix(f".{uuid4().hex}.tmp")
-        try:
-            with wave.open(str(temporary_path), "wb") as wav_file:
-                wav_file.setnchannels(1)
-                wav_file.setsampwidth(2)
-                wav_file.setframerate(self.sample_rate)
-                wav_file.writeframes(pcm_audio)
-            os.replace(temporary_path, audio_path)
-        finally:
-            temporary_path.unlink(missing_ok=True)
-
-    def _headers(self) -> dict[str, str]:
-        request_headers = {
-            "X-Api-Key": self.api_key,
-            "X-Api-Resource-Id": self.RESOURCE_ID,
-            "X-Api-App-Key": self.APP_KEY,
-            "X-Api-Request-Id": str(uuid4()),
-            "Content-Type": "application/json",
-            "Connection": "keep-alive",
-        }
-        return request_headers
-
-    def _payload(
-        self,
-        text: str,
-        *,
-        speaker: str | None = None,
-        tone: str | None = None,
-        emotion_strength: int = 4,
-        speech_rate: int = 0,
-        loudness_rate: int = 0,
-        pitch: int = 0,
-        style_instruction: str = "",
-    ) -> dict[str, Any]:
-        selected_speaker = self.speaker_option(speaker or self.speaker)
-        selected_tone = self.tone_option(tone or self.DEFAULT_TONE)
-        self.validate_delivery_parameters(
-            emotion_strength=emotion_strength,
-            speech_rate=speech_rate,
-            loudness_rate=loudness_rate,
-            pitch=pitch,
-            style_instruction=style_instruction,
-        )
-        context_instruction = self._context_instruction(
-            tone=selected_tone,
-            emotion_strength=emotion_strength,
-            style_instruction=style_instruction,
-        )
-        additions = {
-            "enable_language_detector": True,
-            "disable_markdown_filter": True,
-            "disable_emoji_filter": False,
-            "max_length_to_filter_parenthesis": 0,
-            "cache_config": {"text_type": 1, "use_cache": False},
-            "post_process": {"pitch": pitch},
-            "context_texts": [context_instruction],
-        }
-        request_payload = {
+    def payload(self, text: str, voice: str, prompt: str = "", **kwargs) -> dict:
+        """The prompt goes in context_texts, never in text: it steers the delivery and is not read out.
+        kwargs: speech_rate, loudness_rate (-50..100, 0 normal)."""
+        additions = {"disable_markdown_filter": True, "disable_emoji_filter": True}
+        if prompt:
+            additions["context_texts"] = [prompt]
+        payload = {
+            "user": {"uid": ByteplusTtsConfig.USER_ID},
             "req_params": {
                 "text": text,
-                "speaker": selected_speaker.id,
-                "audio_params": {
-                    "format": "pcm",
-                    "sample_rate": self.sample_rate,
-                    "speech_rate": speech_rate,
-                    "loudness_rate": loudness_rate,
-                },
-                "additions": json.dumps(additions),
-            }
+                "speaker": voice,
+                "audio_params": {"format": "pcm", "sample_rate": SpeechConfig.SAMPLE_RATE,
+                                 "speech_rate": kwargs.get("speech_rate", 0),
+                                 "loudness_rate": kwargs.get("loudness_rate", 0)},
+                "additions": json.dumps(additions, ensure_ascii=False),
+            },
         }
-        return request_payload
+        return payload
+
+    def synthesize(self, text: str, voice: str, prompt: str = "", **kwargs) -> bytes:
+        """16 kHz mono 16-bit PCM."""
+        request_id = str(uuid4())
+        headers = {"X-Api-Key": self.api_key, "X-Api-Resource-Id": ByteplusTtsConfig.RESOURCE_ID,
+                   "X-Api-Request-Id": request_id, "Content-Type": "application/json"}
+        try:
+            response = self.session.post(self.url, headers=headers, json=self.payload(text, voice, prompt, **kwargs),
+                                         stream=True, timeout=self.timeout)
+        except requests.RequestException as error:
+            raise ByteplusTtsError(f"Couldn't reach BytePlus: {error}") from error
+        if response.status_code >= 400:
+            raise ByteplusTtsError(f"BytePlus answered HTTP {response.status_code} (request {request_id})")
+        pcm = bytearray()
+        completed = False
+        # The stream is JSON objects back to back: code 0 carries base64 PCM (or sentence metadata with
+        # no audio), 20000000 marks the end, anything else is a failure.
+        for message in self._messages(response):
+            code = message.get("code")
+            if code == 20000000:
+                completed = True
+            elif code == 0:
+                if message.get("data"):
+                    try:
+                        pcm.extend(base64.b64decode(message["data"], validate=True))
+                    except (ValueError, binascii.Error) as error:
+                        raise ByteplusTtsError("BytePlus sent audio that isn't valid base64") from error
+            else:
+                reason = self.KNOWN_ERRORS.get(code, message.get("message") or "unknown error")
+                raise ByteplusTtsError(f"BytePlus failed ({code}): {reason}")
+        response.close()
+        if not completed or not pcm:
+            raise ByteplusTtsError("BytePlus ended the stream without audio")
+        audio = bytes(pcm)
+        return audio
 
     @staticmethod
-    def validate_delivery_parameters(
-        *,
-        emotion_strength: int,
-        speech_rate: int,
-        loudness_rate: int,
-        pitch: int,
-        style_instruction: str,
-    ) -> None:
-        if not 1 <= emotion_strength <= 5:
-            raise ValueError("Emotion strength must be between 1 and 5")
-        if not -50 <= speech_rate <= 100:
-            raise ValueError("Speech rate must be between -50 and 100")
-        if not -50 <= loudness_rate <= 100:
-            raise ValueError("Loudness rate must be between -50 and 100")
-        if not -12 <= pitch <= 12:
-            raise ValueError("Pitch must be between -12 and 12")
-        if len(style_instruction.strip()) > 300:
-            raise ValueError("Style instruction cannot exceed 300 characters")
-
-    @staticmethod
-    def _context_instruction(
-        *,
-        tone: TtsTone,
-        emotion_strength: int,
-        style_instruction: str,
-    ) -> str:
-        parts = [
-            tone.instruction,
-            (
-                f"情绪表达强度为 {emotion_strength}/5。"
-                f"Use an emotion intensity of {emotion_strength} out of 5."
-            ),
-        ]
-        custom_instruction = style_instruction.strip()
-        if custom_instruction:
-            parts.append(custom_instruction)
-        return " ".join(parts)
-
-    @classmethod
-    def speaker_option(cls, speaker: str) -> TtsSpeaker:
-        for option in cls.SPEAKERS:
-            if option.id == speaker:
-                return option
-        raise ValueError(f"Unsupported bilingual BytePlus speaker: {speaker}")
-
-    @classmethod
-    def tone_option(cls, tone: str) -> TtsTone:
-        for option in cls.TONES:
-            if option.id == tone:
-                return option
-        raise ValueError(f"Unsupported BytePlus speech tone: {tone}")
-
-    def _events(self, response: Any) -> Iterator[dict[str, Any]]:
+    def _messages(response: requests.Response) -> Iterator[Mapping]:
+        """Objects may be split anywhere across network chunks, even inside a UTF-8 character."""
         decoder = json.JSONDecoder()
-        response_buffer = ""
-        for response_chunk in response.iter_content(
-            chunk_size=4096,
-            decode_unicode=True,
-        ):
-            response_buffer += response_chunk
-            while response_buffer.strip():
-                stripped_buffer = response_buffer.lstrip()
+        utf8 = codecs.getincrementaldecoder("utf-8")()
+        buffer = ""
+        for chunk in [*response.iter_content(chunk_size=8192), None]:
+            buffer += utf8.decode(chunk or b"", final=chunk is None)
+            while True:
+                buffer = buffer.lstrip()
+                if buffer.startswith("data:"):
+                    buffer = buffer[5:].lstrip()
                 try:
-                    event, event_end = decoder.raw_decode(stripped_buffer)
+                    message, end = decoder.raw_decode(buffer)
                 except json.JSONDecodeError:
                     break
-                yield event
-                response_buffer = stripped_buffer[event_end:]
-
-        if response_buffer.strip():
-            raise BytePlusTtsError("BytePlus returned an incomplete JSON event")
+                buffer = buffer[end:]
+                yield message
+        if buffer.strip():
+            raise ByteplusTtsError("BytePlus sent an incomplete message")
 
 
 def demo_byteplus_tts_helper() -> None:
-    helper = BytePlusTtsHelper(api_key="offline-demo-key")
-    request_payload = helper._payload("你好，welcome to G1 Guide.")
-    request_parameters = request_payload["req_params"]
-    assert request_parameters["speaker"] == BytePlusTtsHelper.DEFAULT_SPEAKER
-    assert request_parameters["audio_params"]["sample_rate"] == 16000
-    print("BytePlus TTS helper: bilingual WAV output configured")
+    """Without BYTEPLUS_API_KEY only the request is shown; with it, one short clip is generated."""
+    from util.wav_helper import WavHelper
+
+    helper = ByteplusTtsHelper()
+    prompt = "用温暖亲切的语气说。"
+    logger.info("Request: {}", helper.payload("你好，欢迎来到展厅。", ByteplusTtsConfig.DEFAULT_VOICE, prompt))
+    if not helper.configured:
+        logger.info("BYTEPLUS_API_KEY not set; no request sent")
+        return
+    pcm = helper.synthesize("你好，欢迎来到展厅。", ByteplusTtsConfig.DEFAULT_VOICE, prompt)
+    path = WavHelper().write(pcm, BASE_DIR / "output" / "demo" / "byteplus_tts" / "hello.wav")
+    logger.info("{}: {:.2f} s", path, WavHelper().seconds(pcm))
 
 
 def main() -> None:
+    use_utf8_output()
     demo_byteplus_tts_helper()
 
 

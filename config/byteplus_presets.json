@@ -1,0 +1,3403 @@
+{
+ "default_preset_id": "103",
+ "presets": [
+  {
+   "id": "001",
+   "name": "平静陈述",
+   "category": "接待服务",
+   "subcategory": "咨询说明",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "subtle",
+    "social_tone": "neutral",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "002",
+   "name": "专业说明",
+   "category": "接待服务",
+   "subcategory": "咨询说明",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm",
+     "confident"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "003",
+   "name": "温柔提醒",
+   "category": "接待服务",
+   "subcategory": "引导配合",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "gentle",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "warn",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "004",
+   "name": "耐心安抚",
+   "category": "接待服务",
+   "subcategory": "安抚确认",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "moderate",
+    "social_tone": "reassuring",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "reassure",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "005",
+   "name": "轻松聊天",
+   "category": "日常社交",
+   "subcategory": "闲聊分享",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "casual",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "smiling"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "006",
+   "name": "自然开心",
+   "category": "日常社交",
+   "subcategory": "闲聊分享",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "warm",
+    "mental_state": [
+     "hopeful"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "bright",
+     "smiling"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_high",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "007",
+   "name": "开心分享",
+   "category": "日常社交",
+   "subcategory": "闲聊分享",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "casual",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "bright",
+     "smiling"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "slightly_high",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "008",
+   "name": "开心感谢",
+   "category": "日常社交",
+   "subcategory": "邀请致谢",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "warm",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "thank",
+    "voice_texture": [
+     "soft",
+     "smiling"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "009",
+   "name": "开心邀请",
+   "category": "日常社交",
+   "subcategory": "邀请致谢",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "warm",
+    "mental_state": [
+     "expectant"
+    ],
+    "communicative_intent": "invite",
+    "voice_texture": [
+     "bright",
+     "smiling"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "slightly_high",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "010",
+   "name": "克制开心",
+   "category": "日常社交",
+   "subcategory": "闲聊分享",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "gentle",
+    "mental_state": [
+     "restrained"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "soft",
+     "smiling"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "011",
+   "name": "兴奋宣布",
+   "category": "教学播报",
+   "subcategory": "喜讯动员",
+   "style": {
+    "emotion": "excited",
+    "intensity": "strong",
+    "social_tone": "casual",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "bright",
+     "powerful"
+    ],
+    "pace": "fast",
+    "pitch": "high",
+    "energy": "very_high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "012",
+   "name": "惊喜兴奋",
+   "category": "教学播报",
+   "subcategory": "喜讯动员",
+   "style": {
+    "emotion": "excited",
+    "intensity": "intense",
+    "social_tone": "warm",
+    "mental_state": [
+     "overwhelmed"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "bright",
+     "smiling"
+    ],
+    "pace": "fast",
+    "pitch": "high",
+    "energy": "very_high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "013",
+   "name": "兴奋邀请",
+   "category": "教学播报",
+   "subcategory": "开场邀请",
+   "style": {
+    "emotion": "excited",
+    "intensity": "strong",
+    "social_tone": "casual",
+    "mental_state": [
+     "expectant"
+    ],
+    "communicative_intent": "invite",
+    "voice_texture": [
+     "bright"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "slightly_high",
+    "energy": "very_high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "014",
+   "name": "兴奋鼓励",
+   "category": "教学播报",
+   "subcategory": "喜讯动员",
+   "style": {
+    "emotion": "excited",
+    "intensity": "strong",
+    "social_tone": "warm",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "encourage",
+    "voice_texture": [
+     "powerful",
+     "bright"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "slightly_high",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "015",
+   "name": "压低兴奋",
+   "category": "亲密互动",
+   "subcategory": "心意告白",
+   "style": {
+    "emotion": "excited",
+    "intensity": "moderate",
+    "social_tone": "intimate",
+    "mental_state": [
+     "restrained",
+     "expectant"
+    ],
+    "communicative_intent": "confess",
+    "voice_texture": [
+     "soft",
+     "smiling"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "016",
+   "name": "如释重负",
+   "category": "情感陪伴",
+   "subcategory": "释怀告别",
+   "style": {
+    "emotion": "relieved",
+    "intensity": "moderate",
+    "social_tone": "warm",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "017",
+   "name": "释然感谢",
+   "category": "日常社交",
+   "subcategory": "邀请致谢",
+   "style": {
+    "emotion": "relieved",
+    "intensity": "moderate",
+    "social_tone": "warm",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "thank",
+    "voice_texture": [
+     "soft",
+     "smiling"
+    ],
+    "pace": "slow",
+    "pitch": "normal",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "018",
+   "name": "安心确认",
+   "category": "接待服务",
+   "subcategory": "安抚确认",
+   "style": {
+    "emotion": "relieved",
+    "intensity": "mild",
+    "social_tone": "reassuring",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "confirm",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "019",
+   "name": "劫后余生",
+   "category": "危急求助",
+   "subcategory": "脱险回应",
+   "style": {
+    "emotion": "relieved",
+    "intensity": "strong",
+    "social_tone": "casual",
+    "mental_state": [
+     "overwhelmed",
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "breathy",
+     "tired"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "020",
+   "name": "释怀告别",
+   "category": "情感陪伴",
+   "subcategory": "释怀告别",
+   "style": {
+    "emotion": "relieved",
+    "intensity": "mild",
+    "social_tone": "distant",
+    "mental_state": [
+     "resigned",
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "021",
+   "name": "轻微难过",
+   "category": "情感陪伴",
+   "subcategory": "低落倾诉",
+   "style": {
+    "emotion": "sad",
+    "intensity": "mild",
+    "social_tone": "gentle",
+    "mental_state": [
+     "restrained"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "022",
+   "name": "克制悲伤",
+   "category": "情感陪伴",
+   "subcategory": "低落倾诉",
+   "style": {
+    "emotion": "sad",
+    "intensity": "moderate",
+    "social_tone": "gentle",
+    "mental_state": [
+     "hurt",
+     "restrained"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "soft",
+     "trembling"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "023",
+   "name": "深度悲伤",
+   "category": "情感陪伴",
+   "subcategory": "低落倾诉",
+   "style": {
+    "emotion": "sad",
+    "intensity": "strong",
+    "social_tone": "serious",
+    "mental_state": [
+     "heartbroken"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "tearful",
+     "trembling"
+    ],
+    "pace": "slow",
+    "pitch": "low",
+    "energy": "very_low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "024",
+   "name": "悲伤安慰",
+   "category": "情感陪伴",
+   "subcategory": "共情安慰",
+   "style": {
+    "emotion": "sad",
+    "intensity": "moderate",
+    "social_tone": "comforting",
+    "mental_state": [
+     "hurt",
+     "restrained"
+    ],
+    "communicative_intent": "comfort",
+    "voice_texture": [
+     "soft",
+     "tearful"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "025",
+   "name": "悲伤道歉",
+   "category": "情感陪伴",
+   "subcategory": "道歉修复",
+   "style": {
+    "emotion": "sad",
+    "intensity": "moderate",
+    "social_tone": "gentle",
+    "mental_state": [
+     "hurt",
+     "hesitant"
+    ],
+    "communicative_intent": "apologize",
+    "voice_texture": [
+     "soft",
+     "trembling"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "026",
+   "name": "失望陈述",
+   "category": "情感陪伴",
+   "subcategory": "低落倾诉",
+   "style": {
+    "emotion": "disappointed",
+    "intensity": "moderate",
+    "social_tone": "serious",
+    "mental_state": [
+     "resigned"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "tired"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "027",
+   "name": "失望质问",
+   "category": "冲突沟通",
+   "subcategory": "质问争辩",
+   "style": {
+    "emotion": "disappointed",
+    "intensity": "strong",
+    "social_tone": "firm",
+    "mental_state": [
+     "hurt",
+     "impatient"
+    ],
+    "communicative_intent": "question",
+    "voice_texture": [
+     "low"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_low",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "028",
+   "name": "失望抱怨",
+   "category": "冲突沟通",
+   "subcategory": "不满抱怨",
+   "style": {
+    "emotion": "disappointed",
+    "intensity": "moderate",
+    "social_tone": "casual",
+    "mental_state": [
+     "hurt"
+    ],
+    "communicative_intent": "complain",
+    "voice_texture": [
+     "tired"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_low",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "029",
+   "name": "无奈接受",
+   "category": "情感陪伴",
+   "subcategory": "释怀告别",
+   "style": {
+    "emotion": "disappointed",
+    "intensity": "mild",
+    "social_tone": "distant",
+    "mental_state": [
+     "resigned"
+    ],
+    "communicative_intent": "confirm",
+    "voice_texture": [
+     "soft",
+     "tired"
+    ],
+    "pace": "slow",
+    "pitch": "low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "030",
+   "name": "冷静失望",
+   "category": "冲突沟通",
+   "subcategory": "冷淡回应",
+   "style": {
+    "emotion": "disappointed",
+    "intensity": "moderate",
+    "social_tone": "distant",
+    "mental_state": [
+     "restrained"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "low"
+    ],
+    "pace": "normal",
+    "pitch": "low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "031",
+   "name": "受伤却克制",
+   "category": "情感陪伴",
+   "subcategory": "低落倾诉",
+   "style": {
+    "emotion": "hurt",
+    "intensity": "moderate",
+    "social_tone": "gentle",
+    "mental_state": [
+     "hurt",
+     "restrained"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "soft",
+     "trembling"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "032",
+   "name": "委屈抱怨",
+   "category": "冲突沟通",
+   "subcategory": "不满抱怨",
+   "style": {
+    "emotion": "hurt",
+    "intensity": "moderate",
+    "social_tone": "casual",
+    "mental_state": [
+     "hurt"
+    ],
+    "communicative_intent": "complain",
+    "voice_texture": [
+     "tearful"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "033",
+   "name": "受伤质问",
+   "category": "冲突沟通",
+   "subcategory": "质问争辩",
+   "style": {
+    "emotion": "hurt",
+    "intensity": "strong",
+    "social_tone": "firm",
+    "mental_state": [
+     "hurt",
+     "overwhelmed"
+    ],
+    "communicative_intent": "question",
+    "voice_texture": [
+     "trembling"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_high",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "034",
+   "name": "受伤挽留",
+   "category": "亲密互动",
+   "subcategory": "不舍挽留",
+   "style": {
+    "emotion": "hurt",
+    "intensity": "strong",
+    "social_tone": "intimate",
+    "mental_state": [
+     "heartbroken",
+     "hopeful"
+    ],
+    "communicative_intent": "request",
+    "voice_texture": [
+     "tearful",
+     "soft"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "035",
+   "name": "受伤安慰别人",
+   "category": "情感陪伴",
+   "subcategory": "共情安慰",
+   "style": {
+    "emotion": "hurt",
+    "intensity": "moderate",
+    "social_tone": "reassuring",
+    "mental_state": [
+     "hurt",
+     "restrained"
+    ],
+    "communicative_intent": "reassure",
+    "voice_texture": [
+     "soft",
+     "trembling"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "036",
+   "name": "轻微生气",
+   "category": "冲突沟通",
+   "subcategory": "催促警告",
+   "style": {
+    "emotion": "angry",
+    "intensity": "mild",
+    "social_tone": "firm",
+    "mental_state": [
+     "restrained"
+    ],
+    "communicative_intent": "warn",
+    "voice_texture": [
+     "low"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_low",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "037",
+   "name": "明显生气",
+   "category": "冲突沟通",
+   "subcategory": "质问争辩",
+   "style": {
+    "emotion": "angry",
+    "intensity": "strong",
+    "social_tone": "argumentative",
+    "mental_state": [
+     "impatient"
+    ],
+    "communicative_intent": "challenge",
+    "voice_texture": [
+     "powerful"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "slightly_high",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "038",
+   "name": "愤怒质问",
+   "category": "冲突沟通",
+   "subcategory": "质问争辩",
+   "style": {
+    "emotion": "angry",
+    "intensity": "strong",
+    "social_tone": "argumentative",
+    "mental_state": [
+     "impatient",
+     "hurt"
+    ],
+    "communicative_intent": "question",
+    "voice_texture": [
+     "powerful"
+    ],
+    "pace": "fast",
+    "pitch": "high",
+    "energy": "very_high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "039",
+   "name": "强硬警告",
+   "category": "冲突沟通",
+   "subcategory": "催促警告",
+   "style": {
+    "emotion": "angry",
+    "intensity": "moderate",
+    "social_tone": "firm",
+    "mental_state": [
+     "confident",
+     "restrained"
+    ],
+    "communicative_intent": "warn",
+    "voice_texture": [
+     "deep",
+     "powerful"
+    ],
+    "pace": "normal",
+    "pitch": "low",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "040",
+   "name": "压抑愤怒",
+   "category": "冲突沟通",
+   "subcategory": "冷淡回应",
+   "style": {
+    "emotion": "angry",
+    "intensity": "strong",
+    "social_tone": "distant",
+    "mental_state": [
+     "restrained",
+     "hurt"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "low",
+     "trembling"
+    ],
+    "pace": "slow",
+    "pitch": "low",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "041",
+   "name": "轻度不耐烦",
+   "category": "冲突沟通",
+   "subcategory": "不满抱怨",
+   "style": {
+    "emotion": "annoyed",
+    "intensity": "mild",
+    "social_tone": "casual",
+    "mental_state": [
+     "impatient"
+    ],
+    "communicative_intent": "complain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "042",
+   "name": "不耐烦催促",
+   "category": "冲突沟通",
+   "subcategory": "催促警告",
+   "style": {
+    "emotion": "annoyed",
+    "intensity": "moderate",
+    "social_tone": "firm",
+    "mental_state": [
+     "impatient"
+    ],
+    "communicative_intent": "request",
+    "voice_texture": [
+     "low"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "slightly_low",
+    "energy": "medium"
+   },
+   "scene_prompt": "对方迟迟没有行动，你已经失去耐心，正在催他马上行动。表达出明确的催促感，重读行动词，句尾干脆，不要读成礼貌咨询。"
+  },
+  {
+   "id": "043",
+   "name": "烦躁拒绝",
+   "category": "冲突沟通",
+   "subcategory": "拒绝交流",
+   "style": {
+    "emotion": "annoyed",
+    "intensity": "moderate",
+    "social_tone": "distant",
+    "mental_state": [
+     "impatient"
+    ],
+    "communicative_intent": "reject",
+    "voice_texture": [
+     "low"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_low",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "044",
+   "name": "轻微恐惧",
+   "category": "危急求助",
+   "subcategory": "恐惧不安",
+   "style": {
+    "emotion": "afraid",
+    "intensity": "mild",
+    "social_tone": "serious",
+    "mental_state": [
+     "uncertain"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "soft",
+     "breathy"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "slightly_high",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "045",
+   "name": "明显害怕",
+   "category": "危急求助",
+   "subcategory": "恐惧不安",
+   "style": {
+    "emotion": "afraid",
+    "intensity": "strong",
+    "social_tone": "serious",
+    "mental_state": [
+     "overwhelmed"
+    ],
+    "communicative_intent": "warn",
+    "voice_texture": [
+     "trembling",
+     "breathy"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "high",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "046",
+   "name": "恐惧求助",
+   "category": "危急求助",
+   "subcategory": "紧急求助",
+   "style": {
+    "emotion": "afraid",
+    "intensity": "strong",
+    "social_tone": "gentle",
+    "mental_state": [
+     "desperate",
+     "overwhelmed"
+    ],
+    "communicative_intent": "request",
+    "voice_texture": [
+     "trembling",
+     "tearful"
+    ],
+    "pace": "fast",
+    "pitch": "high",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "047",
+   "name": "惊恐警告",
+   "category": "危急求助",
+   "subcategory": "紧急求助",
+   "style": {
+    "emotion": "afraid",
+    "intensity": "intense",
+    "social_tone": "firm",
+    "mental_state": [
+     "desperate"
+    ],
+    "communicative_intent": "warn",
+    "voice_texture": [
+     "trembling",
+     "powerful"
+    ],
+    "pace": "fast",
+    "pitch": "high",
+    "energy": "very_high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "048",
+   "name": "紧张发言",
+   "category": "日常社交",
+   "subcategory": "犹豫提问",
+   "style": {
+    "emotion": "nervous",
+    "intensity": "moderate",
+    "social_tone": "serious",
+    "mental_state": [
+     "hesitant",
+     "uncertain"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "trembling"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "slightly_high",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "049",
+   "name": "紧张提问",
+   "category": "日常社交",
+   "subcategory": "犹豫提问",
+   "style": {
+    "emotion": "nervous",
+    "intensity": "moderate",
+    "social_tone": "gentle",
+    "mental_state": [
+     "hesitant",
+     "uncertain"
+    ],
+    "communicative_intent": "question",
+    "voice_texture": [
+     "soft",
+     "trembling"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "slightly_high",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "050",
+   "name": "紧张确认",
+   "category": "日常社交",
+   "subcategory": "犹豫提问",
+   "style": {
+    "emotion": "nervous",
+    "intensity": "mild",
+    "social_tone": "reassuring",
+    "mental_state": [
+     "uncertain"
+    ],
+    "communicative_intent": "confirm",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_high",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "051",
+   "name": "紧张告白",
+   "category": "亲密互动",
+   "subcategory": "心意告白",
+   "style": {
+    "emotion": "nervous",
+    "intensity": "strong",
+    "social_tone": "intimate",
+    "mental_state": [
+     "shy",
+     "hesitant"
+    ],
+    "communicative_intent": "confess",
+    "voice_texture": [
+     "soft",
+     "trembling"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "slightly_high",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "052",
+   "name": "惊讶反应",
+   "category": "日常社交",
+   "subcategory": "惊讶确认",
+   "style": {
+    "emotion": "surprised",
+    "intensity": "moderate",
+    "social_tone": "casual",
+    "mental_state": [
+     "confused"
+    ],
+    "communicative_intent": "question",
+    "voice_texture": [
+     "bright"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "high",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "053",
+   "name": "惊喜确认",
+   "category": "日常社交",
+   "subcategory": "惊讶确认",
+   "style": {
+    "emotion": "surprised",
+    "intensity": "strong",
+    "social_tone": "warm",
+    "mental_state": [
+     "expectant"
+    ],
+    "communicative_intent": "confirm",
+    "voice_texture": [
+     "bright",
+     "smiling"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "high",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "054",
+   "name": "难以置信",
+   "category": "日常社交",
+   "subcategory": "惊讶确认",
+   "style": {
+    "emotion": "surprised",
+    "intensity": "strong",
+    "social_tone": "serious",
+    "mental_state": [
+     "confused",
+     "overwhelmed"
+    ],
+    "communicative_intent": "question",
+    "voice_texture": [
+     "trembling"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "high",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "055",
+   "name": "厌恶拒绝",
+   "category": "冲突沟通",
+   "subcategory": "拒绝交流",
+   "style": {
+    "emotion": "disgusted",
+    "intensity": "moderate",
+    "social_tone": "distant",
+    "mental_state": [
+     "restrained"
+    ],
+    "communicative_intent": "reject",
+    "voice_texture": [
+     "low"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_low",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "056",
+   "name": "厌烦抱怨",
+   "category": "冲突沟通",
+   "subcategory": "不满抱怨",
+   "style": {
+    "emotion": "disgusted",
+    "intensity": "mild",
+    "social_tone": "sarcastic",
+    "mental_state": [
+     "impatient"
+    ],
+    "communicative_intent": "complain",
+    "voice_texture": [
+     "low"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "057",
+   "name": "冷漠陈述",
+   "category": "冲突沟通",
+   "subcategory": "冷淡回应",
+   "style": {
+    "emotion": "cold",
+    "intensity": "moderate",
+    "social_tone": "distant",
+    "mental_state": [
+     "restrained"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "low"
+    ],
+    "pace": "normal",
+    "pitch": "low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "058",
+   "name": "冷淡拒绝",
+   "category": "冲突沟通",
+   "subcategory": "拒绝交流",
+   "style": {
+    "emotion": "cold",
+    "intensity": "moderate",
+    "social_tone": "distant",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "reject",
+    "voice_texture": [
+     "low"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "059",
+   "name": "冷静警告",
+   "category": "冲突沟通",
+   "subcategory": "催促警告",
+   "style": {
+    "emotion": "cold",
+    "intensity": "moderate",
+    "social_tone": "firm",
+    "mental_state": [
+     "confident",
+     "restrained"
+    ],
+    "communicative_intent": "warn",
+    "voice_texture": [
+     "deep",
+     "low"
+    ],
+    "pace": "slow",
+    "pitch": "low",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "060",
+   "name": "温柔安慰",
+   "category": "情感陪伴",
+   "subcategory": "共情安慰",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "moderate",
+    "social_tone": "comforting",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "comfort",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "061",
+   "name": "温柔鼓励",
+   "category": "情感陪伴",
+   "subcategory": "鼓励打气",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "warm",
+    "mental_state": [
+     "hopeful"
+    ],
+    "communicative_intent": "encourage",
+    "voice_texture": [
+     "soft",
+     "smiling"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "062",
+   "name": "温柔道歉",
+   "category": "情感陪伴",
+   "subcategory": "道歉修复",
+   "style": {
+    "emotion": "sad",
+    "intensity": "mild",
+    "social_tone": "gentle",
+    "mental_state": [
+     "hesitant"
+    ],
+    "communicative_intent": "apologize",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "063",
+   "name": "温柔请求",
+   "category": "接待服务",
+   "subcategory": "引导配合",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "gentle",
+    "mental_state": [
+     "hesitant"
+    ],
+    "communicative_intent": "request",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "064",
+   "name": "亲密低语",
+   "category": "亲密互动",
+   "subcategory": "暧昧私语",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "intimate",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "whispering",
+     "soft"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "very_low"
+   },
+   "scene_prompt": "你靠近熟悉的人耳边分享秘密。保持私密的耳语表达，不要读成面向听众的公开播报。"
+  },
+  {
+   "id": "065",
+   "name": "暧昧试探",
+   "category": "亲密互动",
+   "subcategory": "暧昧私语",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "flirty",
+    "mental_state": [
+     "shy",
+     "expectant"
+    ],
+    "communicative_intent": "question",
+    "voice_texture": [
+     "soft",
+     "breathy"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "066",
+   "name": "暧昧调侃",
+   "category": "亲密互动",
+   "subcategory": "暧昧私语",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "flirty",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "tease",
+    "voice_texture": [
+     "smiling",
+     "breathy"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_high",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "067",
+   "name": "害羞告白",
+   "category": "亲密互动",
+   "subcategory": "心意告白",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "intimate",
+    "mental_state": [
+     "shy",
+     "hesitant"
+    ],
+    "communicative_intent": "confess",
+    "voice_texture": [
+     "soft",
+     "trembling"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_high",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "068",
+   "name": "撒娇请求",
+   "category": "亲密互动",
+   "subcategory": "撒娇请求",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "cute",
+    "mental_state": [
+     "expectant"
+    ],
+    "communicative_intent": "request",
+    "voice_texture": [
+     "soft",
+     "smiling"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "slightly_high",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "069",
+   "name": "撒娇抱怨",
+   "category": "亲密互动",
+   "subcategory": "撒娇请求",
+   "style": {
+    "emotion": "annoyed",
+    "intensity": "mild",
+    "social_tone": "cute",
+    "mental_state": [
+     "hurt"
+    ],
+    "communicative_intent": "complain",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_high",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "070",
+   "name": "俏皮调侃",
+   "category": "日常社交",
+   "subcategory": "朋友玩笑",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "teasing",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "tease",
+    "voice_texture": [
+     "smiling",
+     "bright"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "slightly_high",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "071",
+   "name": "轻微讽刺",
+   "category": "冲突沟通",
+   "subcategory": "讽刺反驳",
+   "style": {
+    "emotion": "annoyed",
+    "intensity": "mild",
+    "social_tone": "sarcastic",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "challenge",
+    "voice_texture": [
+     "low"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "072",
+   "name": "强烈讽刺",
+   "category": "冲突沟通",
+   "subcategory": "讽刺反驳",
+   "style": {
+    "emotion": "angry",
+    "intensity": "moderate",
+    "social_tone": "sarcastic",
+    "mental_state": [
+     "impatient"
+    ],
+    "communicative_intent": "challenge",
+    "voice_texture": [
+     "low"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_low",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "073",
+   "name": "专业客服",
+   "category": "接待服务",
+   "subcategory": "咨询说明",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm",
+     "confident"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "074",
+   "name": "客服安抚",
+   "category": "接待服务",
+   "subcategory": "安抚确认",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "moderate",
+    "social_tone": "reassuring",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "reassure",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "075",
+   "name": "客服道歉",
+   "category": "接待服务",
+   "subcategory": "服务致歉",
+   "style": {
+    "emotion": "sad",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "apologize",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "076",
+   "name": "客服解释",
+   "category": "接待服务",
+   "subcategory": "咨询说明",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "077",
+   "name": "正式播报",
+   "category": "教学播报",
+   "subcategory": "通知播报",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "serious",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "deep"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_low",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "078",
+   "name": "新闻紧急播报",
+   "category": "教学播报",
+   "subcategory": "通知播报",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "strong",
+    "social_tone": "serious",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "warn",
+    "voice_texture": [
+     "powerful"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "normal",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "079",
+   "name": "悬疑旁白",
+   "category": "故事配音",
+   "subcategory": "悬疑恐怖",
+   "style": {
+    "emotion": "afraid",
+    "intensity": "mild",
+    "social_tone": "serious",
+    "mental_state": [
+     "suspicious"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "low",
+     "breathy"
+    ],
+    "pace": "slow",
+    "pitch": "low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "080",
+   "name": "恐怖旁白",
+   "category": "故事配音",
+   "subcategory": "悬疑恐怖",
+   "style": {
+    "emotion": "afraid",
+    "intensity": "strong",
+    "social_tone": "serious",
+    "mental_state": [
+     "overwhelmed"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "whispering",
+     "trembling"
+    ],
+    "pace": "very_slow",
+    "pitch": "low",
+    "energy": "very_low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "081",
+   "name": "温暖旁白",
+   "category": "故事配音",
+   "subcategory": "温暖叙事",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "warm",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slow",
+    "pitch": "normal",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "082",
+   "name": "史诗旁白",
+   "category": "故事配音",
+   "subcategory": "史诗英雄",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "strong",
+    "social_tone": "serious",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "deep",
+     "powerful"
+    ],
+    "pace": "slow",
+    "pitch": "low",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "083",
+   "name": "深夜电台",
+   "category": "故事配音",
+   "subcategory": "温暖叙事",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "intimate",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "soft",
+     "breathy"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "very_low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "084",
+   "name": "睡前故事",
+   "category": "故事配音",
+   "subcategory": "儿童故事",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "gentle",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "very_slow",
+    "pitch": "slightly_low",
+    "energy": "very_low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "085",
+   "name": "儿童故事兴奋",
+   "category": "故事配音",
+   "subcategory": "儿童故事",
+   "style": {
+    "emotion": "excited",
+    "intensity": "strong",
+    "social_tone": "cute",
+    "mental_state": [
+     "expectant"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "bright"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "high",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "086",
+   "name": "游戏NPC欢迎",
+   "category": "故事配音",
+   "subcategory": "游戏角色",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "warm",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "invite",
+    "voice_texture": [
+     "bright"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "087",
+   "name": "游戏NPC警告",
+   "category": "故事配音",
+   "subcategory": "游戏角色",
+   "style": {
+    "emotion": "angry",
+    "intensity": "moderate",
+    "social_tone": "firm",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "warn",
+    "voice_texture": [
+     "deep",
+     "powerful"
+    ],
+    "pace": "normal",
+    "pitch": "low",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "088",
+   "name": "反派威胁",
+   "category": "故事配音",
+   "subcategory": "反派演绎",
+   "style": {
+    "emotion": "cold",
+    "intensity": "strong",
+    "social_tone": "distant",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "warn",
+    "voice_texture": [
+     "deep",
+     "low"
+    ],
+    "pace": "slow",
+    "pitch": "low",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "089",
+   "name": "反派嘲讽",
+   "category": "故事配音",
+   "subcategory": "反派演绎",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "sarcastic",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "challenge",
+    "voice_texture": [
+     "low",
+     "smiling"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "slightly_low",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "090",
+   "name": "英雄鼓舞",
+   "category": "故事配音",
+   "subcategory": "史诗英雄",
+   "style": {
+    "emotion": "excited",
+    "intensity": "strong",
+    "social_tone": "firm",
+    "mental_state": [
+     "confident",
+     "hopeful"
+    ],
+    "communicative_intent": "encourage",
+    "voice_texture": [
+     "powerful"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "normal",
+    "energy": "very_high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "091",
+   "name": "老师讲解",
+   "category": "教学播报",
+   "subcategory": "知识讲解",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm",
+     "confident"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "092",
+   "name": "老师鼓励",
+   "category": "教学播报",
+   "subcategory": "教学互动",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "warm",
+    "mental_state": [
+     "hopeful"
+    ],
+    "communicative_intent": "encourage",
+    "voice_texture": [
+     "soft",
+     "smiling"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "093",
+   "name": "老师提醒",
+   "category": "教学播报",
+   "subcategory": "教学互动",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "moderate",
+    "social_tone": "firm",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "warn",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_low",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "094",
+   "name": "主持人开场",
+   "category": "教学播报",
+   "subcategory": "开场邀请",
+   "style": {
+    "emotion": "excited",
+    "intensity": "moderate",
+    "social_tone": "professional",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "invite",
+    "voice_texture": [
+     "bright",
+     "powerful"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "slightly_high",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "095",
+   "name": "主持人收尾",
+   "category": "教学播报",
+   "subcategory": "结束致谢",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "warm",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "thank",
+    "voice_texture": [
+     "smiling"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "096",
+   "name": "朋友安慰",
+   "category": "情感陪伴",
+   "subcategory": "共情安慰",
+   "style": {
+    "emotion": "sad",
+    "intensity": "mild",
+    "social_tone": "comforting",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "comfort",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "097",
+   "name": "朋友吐槽",
+   "category": "日常社交",
+   "subcategory": "朋友玩笑",
+   "style": {
+    "emotion": "annoyed",
+    "intensity": "mild",
+    "social_tone": "casual",
+    "mental_state": [
+     "impatient"
+    ],
+    "communicative_intent": "complain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "098",
+   "name": "朋友鼓励",
+   "category": "情感陪伴",
+   "subcategory": "鼓励打气",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "casual",
+    "mental_state": [
+     "confident",
+     "hopeful"
+    ],
+    "communicative_intent": "encourage",
+    "voice_texture": [
+     "bright"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "high"
+   },
+   "scene_prompt": "你正在给缺乏信心的朋友加油。表达出真诚的支持和相信对方的态度，重读鼓励的关键词，句尾坚定，不要读成平淡陈述。"
+  },
+  {
+   "id": "099",
+   "name": "朋友调侃",
+   "category": "日常社交",
+   "subcategory": "朋友玩笑",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "teasing",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "tease",
+    "voice_texture": [
+     "smiling"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "slightly_high",
+    "energy": "high"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "100",
+   "name": "认真道歉",
+   "category": "情感陪伴",
+   "subcategory": "道歉修复",
+   "style": {
+    "emotion": "sad",
+    "intensity": "moderate",
+    "social_tone": "serious",
+    "mental_state": [
+     "hurt",
+     "restrained"
+    ],
+    "communicative_intent": "apologize",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": ""
+  },
+  {
+   "id": "101",
+   "name": "首次迎宾",
+   "category": "接待服务",
+   "subcategory": "迎宾接待",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "warm",
+    "mental_state": [
+     "expectant"
+    ],
+    "communicative_intent": "invite",
+    "voice_texture": [
+     "bright",
+     "smiling"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "slightly_high",
+    "energy": "high"
+   },
+   "scene_prompt": "像大厅接待员第一次迎接访客，礼貌温暖，热情适度。"
+  },
+  {
+   "id": "102",
+   "name": "熟客问候",
+   "category": "接待服务",
+   "subcategory": "迎宾接待",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "casual",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "smiling"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "像再次见到熟悉的访客，自然亲切，带轻微笑意。"
+  },
+  {
+   "id": "103",
+   "name": "自我介绍",
+   "category": "接待服务",
+   "subcategory": "身份介绍",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm",
+     "confident"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "像接待机器人向访客介绍自己，自然自信，吐字清楚，避免机械背诵。"
+  },
+  {
+   "id": "104",
+   "name": "能力介绍",
+   "category": "接待服务",
+   "subcategory": "身份介绍",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm",
+     "confident"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "清晰介绍可以提供的帮助，专业可靠，重点明确，避免夸张宣传。"
+  },
+  {
+   "id": "105",
+   "name": "路线指引",
+   "category": "接待服务",
+   "subcategory": "引导配合",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm",
+     "confident"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "像现场为访客指路，方向和地点读清楚，信息之间自然停顿。"
+  },
+  {
+   "id": "106",
+   "name": "跟随邀请",
+   "category": "接待服务",
+   "subcategory": "引导配合",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "warm",
+    "mental_state": [
+     "expectant"
+    ],
+    "communicative_intent": "invite",
+    "voice_texture": [
+     "bright",
+     "smiling"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "slightly_high",
+    "energy": "high"
+   },
+   "scene_prompt": "友善邀请访客跟随，语气轻松，行动指引明确。"
+  },
+  {
+   "id": "107",
+   "name": "等候告知",
+   "category": "接待服务",
+   "subcategory": "等待交接",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "moderate",
+    "social_tone": "reassuring",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "reassure",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "平稳告知需要等待，耐心解释，不带催促感。"
+  },
+  {
+   "id": "108",
+   "name": "人工转接",
+   "category": "接待服务",
+   "subcategory": "等待交接",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "自然说明即将由工作人员接待，语气友好，交接信息清晰。"
+  },
+  {
+   "id": "109",
+   "name": "到达告知",
+   "category": "接待服务",
+   "subcategory": "服务收尾",
+   "style": {
+    "emotion": "relieved",
+    "intensity": "mild",
+    "social_tone": "reassuring",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "confirm",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "简洁明确地告知已经到达目的地，语气肯定，结尾自然收束。"
+  },
+  {
+   "id": "110",
+   "name": "礼貌送别",
+   "category": "接待服务",
+   "subcategory": "服务收尾",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "warm",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "thank",
+    "voice_texture": [
+     "soft",
+     "smiling"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "温暖礼貌地送别访客，带笑意，节奏舒缓自然。"
+  },
+  {
+   "id": "111",
+   "name": "指令收到",
+   "category": "任务反馈",
+   "subcategory": "指令确认",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "subtle",
+    "social_tone": "neutral",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "简短肯定地确认收到指令，清晰利落。"
+  },
+  {
+   "id": "112",
+   "name": "信息复核",
+   "category": "任务反馈",
+   "subcategory": "指令确认",
+   "style": {
+    "emotion": "relieved",
+    "intensity": "mild",
+    "social_tone": "reassuring",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "confirm",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "耐心复核关键信息，询问处自然上扬，避免质疑感。"
+  },
+  {
+   "id": "113",
+   "name": "开始执行",
+   "category": "任务反馈",
+   "subcategory": "执行进度",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm",
+     "confident"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "稳定自信地宣布开始执行，表达简洁可靠。"
+  },
+  {
+   "id": "114",
+   "name": "进度告知",
+   "category": "任务反馈",
+   "subcategory": "执行进度",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "subtle",
+    "social_tone": "neutral",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "平稳告知当前进度，信息清楚，不显急躁。"
+  },
+  {
+   "id": "115",
+   "name": "任务完成",
+   "category": "任务反馈",
+   "subcategory": "完成反馈",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "gentle",
+    "mental_state": [
+     "restrained"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "soft",
+     "smiling"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "明确告知任务完成，带克制的喜悦，结尾肯定。"
+  },
+  {
+   "id": "116",
+   "name": "操作成功",
+   "category": "任务反馈",
+   "subcategory": "完成反馈",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "warm",
+    "mental_state": [
+     "hopeful"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "bright",
+     "smiling"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_high",
+    "energy": "high"
+   },
+   "scene_prompt": "轻快肯定地反馈操作成功，避免过度兴奋。"
+  },
+  {
+   "id": "117",
+   "name": "执行受阻",
+   "category": "任务反馈",
+   "subcategory": "异常恢复",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "平静坦诚地告知执行困难，专业友善，避免慌张和责怪。"
+  },
+  {
+   "id": "118",
+   "name": "重试询问",
+   "category": "任务反馈",
+   "subcategory": "异常恢复",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "gentle",
+    "mental_state": [
+     "hesitant"
+    ],
+    "communicative_intent": "request",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "low"
+   },
+   "scene_prompt": "友善征询是否重试，声音轻柔，给对方选择空间。"
+  },
+  {
+   "id": "119",
+   "name": "积极接话",
+   "category": "日常社交",
+   "subcategory": "对话衔接",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "casual",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "smiling"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "像认真听完对方后自然接话，轻快投入。"
+  },
+  {
+   "id": "120",
+   "name": "礼貌插话",
+   "category": "日常社交",
+   "subcategory": "对话衔接",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "gentle",
+    "mental_state": [
+     "hesitant"
+    ],
+    "communicative_intent": "request",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "low"
+   },
+   "scene_prompt": "礼貌轻柔地插话，开头克制，不显得抢话。"
+  },
+  {
+   "id": "121",
+   "name": "请求重述",
+   "category": "日常社交",
+   "subcategory": "澄清理解",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "gentle",
+    "mental_state": [
+     "hesitant"
+    ],
+    "communicative_intent": "request",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "low"
+   },
+   "scene_prompt": "耐心友好地请对方再说一次，句尾自然上扬，不带烦躁。"
+  },
+  {
+   "id": "122",
+   "name": "理解确认",
+   "category": "日常社交",
+   "subcategory": "澄清理解",
+   "style": {
+    "emotion": "relieved",
+    "intensity": "mild",
+    "social_tone": "reassuring",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "confirm",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "像在确认自己理解正确，语气开放耐心，不作武断判断。"
+  },
+  {
+   "id": "123",
+   "name": "好奇追问",
+   "category": "日常社交",
+   "subcategory": "兴趣探索",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "casual",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "smiling"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "带真诚好奇继续提问，语调轻微上扬，不像审问。"
+  },
+  {
+   "id": "124",
+   "name": "惊叹赞赏",
+   "category": "日常社交",
+   "subcategory": "兴趣探索",
+   "style": {
+    "emotion": "surprised",
+    "intensity": "strong",
+    "social_tone": "warm",
+    "mental_state": [
+     "expectant"
+    ],
+    "communicative_intent": "confirm",
+    "voice_texture": [
+     "bright",
+     "smiling"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "high",
+    "energy": "high"
+   },
+   "scene_prompt": "表达真诚惊叹与欣赏，明亮自然，避免夸张吹捧。"
+  },
+  {
+   "id": "125",
+   "name": "主动关心",
+   "category": "情感陪伴",
+   "subcategory": "关怀问候",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "moderate",
+    "social_tone": "comforting",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "comfort",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": "温和主动地关心对方，声音舒缓，保持尊重。"
+  },
+  {
+   "id": "126",
+   "name": "疲惫体谅",
+   "category": "情感陪伴",
+   "subcategory": "关怀问候",
+   "style": {
+    "emotion": "sad",
+    "intensity": "mild",
+    "social_tone": "comforting",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "comfort",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": "体谅对方的疲惫，声音轻柔，节奏放缓，不施加压力。"
+  },
+  {
+   "id": "127",
+   "name": "认可努力",
+   "category": "情感陪伴",
+   "subcategory": "肯定支持",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "warm",
+    "mental_state": [
+     "hopeful"
+    ],
+    "communicative_intent": "encourage",
+    "voice_texture": [
+     "soft",
+     "smiling"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "真诚认可对方的付出，温暖肯定，避免说教。"
+  },
+  {
+   "id": "128",
+   "name": "庆祝进步",
+   "category": "情感陪伴",
+   "subcategory": "肯定支持",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "casual",
+    "mental_state": [
+     "confident",
+     "hopeful"
+    ],
+    "communicative_intent": "encourage",
+    "voice_texture": [
+     "bright"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "high"
+   },
+   "scene_prompt": "为对方的进步感到开心，明亮有活力，喜悦适度。"
+  },
+  {
+   "id": "129",
+   "name": "呼吸引导",
+   "category": "情感陪伴",
+   "subcategory": "放松陪伴",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "gentle",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "very_slow",
+    "pitch": "slightly_low",
+    "energy": "very_low"
+   },
+   "scene_prompt": "平稳缓慢地引导放松，声音柔和，指引之间留自然停顿。"
+  },
+  {
+   "id": "130",
+   "name": "静心陪伴",
+   "category": "情感陪伴",
+   "subcategory": "放松陪伴",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "intimate",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "soft",
+     "breathy"
+    ],
+    "pace": "slow",
+    "pitch": "slightly_low",
+    "energy": "very_low"
+   },
+   "scene_prompt": "安静平和地陪伴，低能量、慢节奏，音量和语调稳定。"
+  },
+  {
+   "id": "131",
+   "name": "分步指导",
+   "category": "教学播报",
+   "subcategory": "分步教学",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm",
+     "confident"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "耐心逐步说明操作，各步骤层次清楚，间隔自然。"
+  },
+  {
+   "id": "132",
+   "name": "重点强调",
+   "category": "教学播报",
+   "subcategory": "分步教学",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm",
+     "confident"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "清楚讲解，关键内容适度加强重音，其余部分自然。"
+  },
+  {
+   "id": "133",
+   "name": "启发提问",
+   "category": "教学播报",
+   "subcategory": "启发互动",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm",
+     "confident"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "以开放好奇的语气启发思考，避免直接给答案式的笃定语气。"
+  },
+  {
+   "id": "134",
+   "name": "思考留白",
+   "category": "教学播报",
+   "subcategory": "启发互动",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm",
+     "confident"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "缓慢提出问题，句末自然收住，为听者留出思考空间。"
+  },
+  {
+   "id": "135",
+   "name": "温和纠错",
+   "category": "教学播报",
+   "subcategory": "纠错反馈",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "像耐心老师纠正小错误，语气温和明确，避免训斥。"
+  },
+  {
+   "id": "136",
+   "name": "答对表扬",
+   "category": "教学播报",
+   "subcategory": "纠错反馈",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "warm",
+    "mental_state": [
+     "hopeful"
+    ],
+    "communicative_intent": "encourage",
+    "voice_texture": [
+     "soft",
+     "smiling"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "轻快真诚地肯定正确回答，清楚有活力。"
+  },
+  {
+   "id": "137",
+   "name": "展品介绍",
+   "category": "教学播报",
+   "subcategory": "展馆导览",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm",
+     "confident"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "像展馆讲解员介绍展品，专业清楚，节奏从容。"
+  },
+  {
+   "id": "138",
+   "name": "趣闻讲述",
+   "category": "教学播报",
+   "subcategory": "展馆导览",
+   "style": {
+    "emotion": "happy",
+    "intensity": "moderate",
+    "social_tone": "casual",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "bright",
+     "smiling"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "slightly_high",
+    "energy": "high"
+   },
+   "scene_prompt": "像分享展品背后有趣的故事，语调有自然起伏，引人入胜。"
+  },
+  {
+   "id": "139",
+   "name": "通道避让",
+   "category": "危急求助",
+   "subcategory": "安全提醒",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "moderate",
+    "social_tone": "firm",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "warn",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_low",
+    "energy": "medium"
+   },
+   "scene_prompt": "清晰礼貌地提醒保持通道畅通，坚定但不生气。"
+  },
+  {
+   "id": "140",
+   "name": "距离提醒",
+   "category": "危急求助",
+   "subcategory": "安全提醒",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "gentle",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "warn",
+    "voice_texture": [
+     "soft"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "slightly_low",
+    "energy": "low"
+   },
+   "scene_prompt": "温和明确地提醒保持安全距离，避免威胁感。"
+  },
+  {
+   "id": "141",
+   "name": "冷静疏导",
+   "category": "危急求助",
+   "subcategory": "紧急指引",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "strong",
+    "social_tone": "serious",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "warn",
+    "voice_texture": [
+     "powerful"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "normal",
+    "energy": "high"
+   },
+   "scene_prompt": "冷静坚定地给出疏导指引，节奏稳定，行动明确，避免惊恐。"
+  },
+  {
+   "id": "142",
+   "name": "立即制止",
+   "category": "危急求助",
+   "subcategory": "紧急指引",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "moderate",
+    "social_tone": "firm",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "warn",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_low",
+    "energy": "medium"
+   },
+   "scene_prompt": "短促有力地要求立即停止，声音清楚坚定，不带愤怒。"
+  },
+  {
+   "id": "143",
+   "name": "纪录解说",
+   "category": "故事配音",
+   "subcategory": "纪实解说",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "serious",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "deep"
+    ],
+    "pace": "normal",
+    "pitch": "slightly_low",
+    "energy": "medium"
+   },
+   "scene_prompt": "沉稳客观地解说事实，咬字清晰，情绪克制。"
+  },
+  {
+   "id": "144",
+   "name": "历史回顾",
+   "category": "故事配音",
+   "subcategory": "纪实解说",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "strong",
+    "social_tone": "serious",
+    "mental_state": [
+     "confident"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "deep",
+     "powerful"
+    ],
+    "pace": "slow",
+    "pitch": "low",
+    "energy": "high"
+   },
+   "scene_prompt": "从容回顾往事，略带深思和时间感，避免过度戏剧化。"
+  },
+  {
+   "id": "145",
+   "name": "一本正经",
+   "category": "故事配音",
+   "subcategory": "趣味演绎",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "subtle",
+    "social_tone": "neutral",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "以认真平静的口吻说出幽默内容，克制表演，不主动笑场。"
+  },
+  {
+   "id": "146",
+   "name": "悬念揭晓",
+   "category": "故事配音",
+   "subcategory": "趣味演绎",
+   "style": {
+    "emotion": "surprised",
+    "intensity": "strong",
+    "social_tone": "warm",
+    "mental_state": [
+     "expectant"
+    ],
+    "communicative_intent": "confirm",
+    "voice_texture": [
+     "bright",
+     "smiling"
+    ],
+    "pace": "slightly_fast",
+    "pitch": "high",
+    "energy": "high"
+   },
+   "scene_prompt": "先带期待感，再自然释放揭晓的惊喜，层次清楚。"
+  },
+  {
+   "id": "147",
+   "name": "长者交流",
+   "category": "无障交流",
+   "subcategory": "清晰慢读",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm",
+     "confident"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "耐心清楚地与长者交流，语速稍慢，尊重自然，避免幼儿化。"
+  },
+  {
+   "id": "148",
+   "name": "逐字确认",
+   "category": "无障交流",
+   "subcategory": "清晰慢读",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm",
+     "confident"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "逐字清晰确认信息，字词间适当停顿，保持自然音量。"
+  },
+  {
+   "id": "149",
+   "name": "跟读示范",
+   "category": "无障交流",
+   "subcategory": "语言学习",
+   "style": {
+    "emotion": "neutral",
+    "intensity": "mild",
+    "social_tone": "professional",
+    "mental_state": [
+     "calm",
+     "confident"
+    ],
+    "communicative_intent": "explain",
+    "voice_texture": [
+     "normal"
+    ],
+    "pace": "slightly_slow",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "像语言老师示范发音，吐字清楚，节奏稍慢，便于跟读。"
+  },
+  {
+   "id": "150",
+   "name": "口语陪练",
+   "category": "无障交流",
+   "subcategory": "语言学习",
+   "style": {
+    "emotion": "happy",
+    "intensity": "mild",
+    "social_tone": "casual",
+    "mental_state": [
+     "calm"
+    ],
+    "communicative_intent": "inform",
+    "voice_texture": [
+     "smiling"
+    ],
+    "pace": "normal",
+    "pitch": "normal",
+    "energy": "medium"
+   },
+   "scene_prompt": "像友善的口语伙伴，自然对话，发音清晰，避免机械慢读。"
+  }
+ ]
+}

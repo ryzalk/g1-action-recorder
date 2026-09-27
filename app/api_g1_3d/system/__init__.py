@@ -1,1 +1,0 @@
-"""System status API domain."""

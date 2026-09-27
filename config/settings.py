@@ -1,111 +1,252 @@
-"""Central paths and runtime settings for the G1 Action Recorder."""
+"""Project configuration, split by domain."""
 
 from __future__ import annotations
 
-import logging
 import os
-from dataclasses import dataclass
+import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-LOGGER = logging.getLogger(__name__)
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-CONCIERGE_INITIAL_POSE_NAME = "concierge_init"
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
 
-@dataclass(frozen=True, slots=True)
-class AppSettings:
-    """Resolve project paths from one explicit project root."""
+def use_utf8_output() -> None:
+    """Let Windows consoles print non-ASCII pose names; entry points call this first."""
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
 
-    project_root: Path = PROJECT_ROOT
-    g1_3d_host: str = "127.0.0.1"
-    g1_3d_port: int = 8000
-    viser_host: str = "127.0.0.1"
-    viser_port: int = 8081
-    initial_base_pose_name: str = CONCIERGE_INITIAL_POSE_NAME
-    byteplus_api_key: str | None = None
 
-    @classmethod
-    def from_env(cls) -> AppSettings:
-        """Load local application secrets without exposing them to callers."""
-        load_dotenv(PROJECT_ROOT / ".env")
-        return cls(
-            byteplus_api_key=(
-                os.getenv("BYTEPLUS_API_KEY")
-                or os.getenv("BYTEPLUS_APY_KEY")
-                or None
-            )
-        )
+class ServerConfig:
+    HOST = "127.0.0.1"
+    PORT = int(os.getenv("G1_RECORDER_PORT", "8930"))
+    LOG_LEVEL = "INFO"
 
-    @property
-    def asset_dir(self) -> Path:
-        return self.project_root / "asset"
 
-    @property
-    def g1_asset_dir(self) -> Path:
-        return self.asset_dir / "g1"
+class PathConfig:
+    BASE_DIR = BASE_DIR
+    ASSET_DIR = BASE_DIR / "asset" / "g1"
+    URDF_PATH = ASSET_DIR / "g1_29dof_fake_hand.urdf"
+    MJCF_PATH = ASSET_DIR / "g1_29dof_fake_hand.xml"
+    METADATA_PATH = ASSET_DIR / "model_metadata.json"
+    # A test run points this at a copy, so saving from the UI never touches the real poses.
+    DATA_DIR = Path(os.getenv("G1_RECORDER_DATA_DIR", BASE_DIR / "data"))
+    OUTPUT_DIR = BASE_DIR / "output"
+    LOG_DIR = OUTPUT_DIR / "logs"
+    # Demos write here and only here.
+    DEMO_DIR = OUTPUT_DIR / "demo"
 
-    @property
-    def data_dir(self) -> Path:
-        return self.project_root / "data"
 
-    @property
-    def pose_dir(self) -> Path:
-        return self.data_dir / "poses"
+class RobotConfig:
+    # Every action starts and ends here; it also seeds the robot at startup.
+    HOME_POSE_NAME = "concierge_init"
+    # Pelvis position of the free joint in the MJCF; the robot stands still, so it never moves.
+    PELVIS_POSITION = (0.0, 0.0, 0.793)
 
-    @property
-    def pose_preview_dir(self) -> Path:
-        return self.data_dir / "pose_previews"
 
-    @property
-    def action_dir(self) -> Path:
-        return self.data_dir / "actions"
+class ActionConfig:
+    SAMPLE_HZ = 25.0
+    DEFAULT_TRAVEL_SECONDS = 1.0
+    # Imported motions blend in from and out to the home pose over this long.
+    IMPORT_BLEND_SECONDS = 1.0
+    PLAYBACK_TICK_SECONDS = 0.005
 
-    @property
-    def action_definition_dir(self) -> Path:
-        return self.action_dir / "definitions"
 
-    @property
-    def action_trajectory_dir(self) -> Path:
-        return self.action_dir / "trajectories"
+class ViewerConfig:
+    HOST = "127.0.0.1"
+    PORT = int(os.getenv("G1_RECORDER_VISER_PORT", "8931"))
+    UPDATE_HZ = 30.0
+    # Robot-relative presets: the G1 faces +X, its own left is +Y.
+    CAMERA_DISTANCE = 2.3
+    CAMERA_HEIGHT = 0.91
+    CAMERA_LOOK_AT = (0.0, 0.0, 0.68)
+    CAMERA_FOV_DEGREES = 45.0
+    CAMERA_MOVE_SECONDS = 0.6
+    CAMERA_AZIMUTHS = {
+        "front": 0.0,
+        "front_left": 45.0,
+        "left": 90.0,
+        "back": 180.0,
+        "right": 270.0,
+        "front_right": 315.0,
+    }
 
-    @property
-    def action_preview_dir(self) -> Path:
-        return self.data_dir / "action_previews"
 
-    @property
-    def tts_dir(self) -> Path:
-        return self.data_dir / "tts"
+class SpeechConfig:
+    # The G1 speaker plays 16 kHz mono 16-bit PCM; every clip is exactly that, whichever service made it.
+    SAMPLE_RATE = 16000
+    MAX_TEXT_CHARACTERS = 5000
+    # Each toned part is one request to the service; this caps the cost of one Generate.
+    MAX_REQUESTS = 50
+    MAX_PAUSE_SECONDS = 10.0
+    PAUSE_CHOICES = (0.25, 0.5, 1.0, 1.5)
+    PRESET_FILE = BASE_DIR / "config" / "byteplus_presets.json"
+    # Every voice's sample, made ahead by component/speech_generation/voice_samples.py --build.
+    SAMPLE_DIR = PathConfig.DATA_DIR / "tts" / "sample"
 
-    @property
-    def third_party_dir(self) -> Path:
-        return self.project_root / "third_party"
 
-    def ensure_runtime_directories(self) -> None:
-        """Create directories that receive generated pose data and previews."""
-        for directory in (
-            self.pose_dir / "base",
-            self.pose_dir / "left_arm",
-            self.pose_dir / "right_arm",
-            self.pose_dir / "composed",
-            self.pose_preview_dir,
-            self.action_definition_dir,
-            self.action_trajectory_dir,
-            self.action_preview_dir,
-            self.tts_dir,
-        ):
-            directory.mkdir(parents=True, exist_ok=True)
+class ByteplusTtsConfig:
+    API_KEY = os.getenv("BYTEPLUS_API_KEY", "")
+    URL = (os.getenv("BYTEPLUS_API_BASE_URL", "https://voice.ap-southeast-1.bytepluses.com")
+           + "/api/v3/tts/unidirectional")
+    RESOURCE_ID = os.getenv("BYTEPLUS_TTS_RESOURCE_ID", "seed-tts-2.0")
+    USER_ID = "g1-action-recorder"
+    TIMEOUT = (5.0, 60.0)
+    DEFAULT_VOICE = "zh_male_m191_uranus_bigtts"
+    # The official TTS 2.0 list with each voice's language and sample (docs: tts-voice-list); others by Voice ID.
+    VOICE_FILE = BASE_DIR / "config" / "byteplus_voices.json"
+    # speech_rate and loudness_rate: 0 is normal.
+    RATE_RANGE = (-50, 100)
+
+
+class MinimaxTtsConfig:
+    API_KEY = os.getenv("MINIMAX_API_KEY", "")
+    URL = os.getenv("MINIMAX_API_BASE_URL", "https://api.minimax.io") + "/v1/t2a_v2"
+    TIMEOUT = (5.0, 90.0)
+    MODELS = (("speech-2.8-hd", "High quality"), ("speech-2.8-turbo", "Fast"), ("speech-2.6-hd", ""),
+              ("speech-2.6-turbo", ""), ("speech-02-hd", ""), ("speech-02-turbo", ""))
+    DEFAULT_MODEL = "speech-2.8-hd"
+    # Sound tags are read as sounds only by these models; others would say the word.
+    SOUND_TAG_MODELS = ("speech-2.8-hd", "speech-2.8-turbo")
+    DEFAULT_VOICE = "Chinese (Mandarin)_Reliable_Executive"
+    # The account's list is read live (cached); this snapshot stands in without a key or network.
+    VOICE_FILE = BASE_DIR / "config" / "minimax_voices.json"
+    VOICE_CACHE_SECONDS = 600
+    # Samples are made ahead with this model (one short request per voice).
+    SAMPLE_MODEL = "speech-2.8-turbo"
+    LANGUAGES = (("auto", "Auto detect"), ("Chinese", "Chinese"), ("Chinese,Yue", "Cantonese"), ("English", "English"),
+                 ("Japanese", "Japanese"), ("Korean", "Korean"), ("Malay", "Malay"), ("Indonesian", "Indonesian"))
+    # The UI's neutral is the API's calm.
+    EMOTIONS = ("neutral", "happy", "sad", "angry", "fearful", "disgusted", "surprised", "fluent")
+    SOUND_TAGS = ("laughs", "chuckle", "coughs", "clear-throat", "groans", "breath", "pant", "inhale", "exhale",
+                  "gasps", "sniffs", "sighs", "snorts", "burps", "lip-smacking", "humming", "hissing", "emm",
+                  "sneezes")
+    SPEED_RANGE = (0.5, 2.0)
+    PITCH_RANGE = (-12, 12)
+    VOLUME_RANGE = (0.01, 10.0)
+
+
+class MapPathConfig:
+    # One folder per map (manifest.json, map.pcd, ground_map.pcd, grid.pgm, grid.yaml); uploads unpack here too.
+    MAP_ROOT = PathConfig.DATA_DIR / "maps"
+    # Name of the folder opened last, kept in MAP_ROOT; the next start opens it again.
+    LAST_MAP_FILE = ".last_opened"
+    # The sample map the demos copy from; they never write it.
+    MAP_ID = "RTLAB"
+    MAP_DIR = BASE_DIR / "data" / "maps" / MAP_ID
+    # The files as they were before the first save: the only source for "Restore original", never overwritten.
+    ORIGINAL_SUFFIX = ".orig"
+    BACKUP_DIR_NAME = ".backup"
+    # What was done in each editing session, written on save; the robot ignores it.
+    EDIT_LOG_FILE = "edits.json"
+    # A copy of every map zip Save & export downloads.
+    PACKAGE_DIR = PathConfig.OUTPUT_DIR / "map_exports"
+    DEMO_DIR = PathConfig.DEMO_DIR / "map"
+
+
+class MapGridConfig:
+    # Fixed names: the G1 map package (g1_api MAP_FILES) knows the grid by these.
+    GRID_FILE = "grid.pgm"
+    YAML_FILE = "grid.yaml"
+    FREE = 254
+    OCCUPIED = 0
+    UNKNOWN = 205
+    VALUES = (OCCUPIED, UNKNOWN, FREE)
+
+
+class MapCloudConfig:
+    MAP_FILE = "map.pcd"
+    GROUND_FILE = "ground_map.pcd"
+    # Every height band is above the floor measured per map and per cell (map_storage/floor_height.py).
+    # Above the floor so the ground stays, below the ceiling so it stays too.
+    ERASE_Z_RANGE_REL = (0.10, 2.00)
+    # ground_map.pcd reaches ~2 m above the floor like map.pcd, so it gets the same band.
+    GROUND_ERASE_Z_RANGE_REL = (0.10, 2.00)
+    PROJECTION_Z_RANGE_REL = (0.10, 2.00)
+    # Per-cell floor: tile size, where around the building floor to look, points a tile needs, histogram bin.
+    FLOOR_TILE_M = 0.5
+    FLOOR_SEARCH_REL = (-0.20, 0.50)
+    FLOOR_MIN_POINTS = 20
+    FLOOR_BIN_M = 0.02
+    # A height bin counts as a layer when it holds this share of the tile's busiest bin.
+    FLOOR_DENSE_SHARE = 0.25
+    # A tile whose floor lands outside this band around the building floor is not floor.
+    FLOOR_PLAUSIBLE_REL = (-0.10, 0.30)
+
+
+class MapEditConfig:
+    # Two cells: a one-cell diagonal leaves corner gaps an 8-neighbour planner slips through.
+    WALL_WIDTH_M = 0.10
+    BRUSH_RADIUS_M = 0.15
+    ERASE_GRID_VALUE = MapGridConfig.FREE
+    TOOL_NAMES = {
+        "lasso_erase": "Lasso erase",
+        "rect_erase": "Rectangle erase",
+        "brush_erase": "Brush erase",
+        "polyline_wall": "Wall",
+        "polygon_fill": "Polygon",
+        "rect_fill": "Rectangle",
+        "obstacle_brush": "Obstacle brush",
+        "candidate_erase": "Clear candidate",
+        "candidate_fill": "Fill candidate",
+    }
+
+
+class MapInspectionConfig:
+    # Wall segments shorter than this (pixels) are left out of the direction estimate.
+    DIRECTION_MIN_LENGTH_PX = 20
+    DIRECTION_BIN_DEG = 1.0
+    # Snapping on the page: end points and existing walls within this distance pull the cursor.
+    SNAP_RADIUS_M = 0.15
+    # Candidates: the band is what the robot can bump into, above the local floor.
+    CANDIDATE_Z_RANGE_REL = (0.10, 1.50)
+    CANDIDATE_MIN_POINTS = 3
+    CANDIDATE_MIN_CELLS = 6
+    # A grid obstacle counts as supported if cloud points lie within this many cells of it.
+    CANDIDATE_GHOST_MARGIN_CELLS = 2
+    # Protected zone: cells with at least PROTECT_MIN_POINTS points above this height are static structure;
+    # the zone reaches PROTECT_MARGIN_CELLS further.
+    PROTECT_MIN_HEIGHT_REL = 2.10
+    PROTECT_MIN_POINTS = 2
+    PROTECT_MARGIN_CELLS = 2
+    # Deleting more protected points than this asks once more.
+    PROTECT_WARN_POINTS = 50
+
+
+class MapDisplayConfig:
+    PROJECTION_COLOR = (220, 38, 38)
+    # A cell reaches full opacity at this many points: walls read solid, a stray point stays faint.
+    PROJECTION_FULL_COUNT = 5
+    # Changed-cell highlight (RGBA): obstacle cleared, obstacle added, anything else.
+    DIFF_COLORS = {"cleared": (20, 184, 166, 200), "added": (249, 115, 22, 230), "other": (139, 92, 246, 200)}
+    PROTECTION_COLOR = (234, 179, 8, 110)
+
+
+class MapViewerConfig:
+    HOST = "127.0.0.1"
+    # Its own Viser server, so the robot view is never disturbed by a map.
+    PORT = int(os.getenv("G1_RECORDER_MAP_VISER_PORT", "8932"))
+    VOXEL_SIZE = 0.08
+    POINT_SIZE = 0.04
+    PREVIEW_POINT_SIZE = 0.06
+    # Heights (above the floor) spanning the colour ramp of the cloud.
+    COLOR_Z_RANGE_REL = (0.0, 2.5)
+    # Red preview points are drawn at full resolution up to this many; the count reported is always the full one.
+    PREVIEW_LIMIT = 200_000
+    PREVIEW_COLOR = (255, 0, 0)
+    PROTECTED_COLOR = (255, 0, 255)
 
 
 def demo_settings() -> None:
-    logging.basicConfig(level=logging.INFO)
-    settings = AppSettings()
-    settings.ensure_runtime_directories()
-    LOGGER.info("G1 Action Recorder project root: %s", settings.project_root)
+    print(f"Data: {PathConfig.DATA_DIR}")
+    print(f"Page: http://{ServerConfig.HOST}:{ServerConfig.PORT}  3D: http://{ViewerConfig.HOST}:{ViewerConfig.PORT}")
+    print(f"Speech keys set: BytePlus {bool(ByteplusTtsConfig.API_KEY)}, MiniMax {bool(MinimaxTtsConfig.API_KEY)}")
 
 
 def main() -> None:
+    use_utf8_output()
     demo_settings()
 
 

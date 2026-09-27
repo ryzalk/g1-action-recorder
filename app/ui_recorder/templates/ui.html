@@ -1,0 +1,82 @@
+{#- Shared Preline-style class sets; every template imports this as ui. -#}
+{% set button = "inline-flex items-center justify-center gap-x-1.5 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-800 shadow-2xs hover:bg-gray-50 focus:bg-gray-50 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50" %}
+{% set small_button = "inline-flex items-center justify-center gap-x-1.5 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-800 shadow-2xs hover:bg-gray-50 focus:bg-gray-50 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50" %}
+{% set primary = "inline-flex items-center justify-center gap-x-1.5 whitespace-nowrap rounded-lg border border-transparent bg-blue-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:bg-blue-700 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50" %}
+{% set small_primary = "inline-flex items-center justify-center gap-x-1.5 whitespace-nowrap rounded-lg border border-transparent bg-blue-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-blue-700 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50" %}
+{% set ghost = "inline-flex items-center gap-x-1.5 whitespace-nowrap rounded-lg px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-hidden disabled:pointer-events-none disabled:opacity-40" %}
+{% set icon_button = "inline-flex size-7 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 focus:bg-gray-50 focus:outline-hidden disabled:pointer-events-none disabled:opacity-40" %}
+{% set input = "block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-hidden disabled:opacity-50" %}
+{% set small_input = "block rounded-md border border-gray-200 bg-white px-2 py-1 text-end text-xs tabular-nums text-gray-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-hidden" %}
+{% set label = "mb-1.5 flex items-center gap-x-1.5 text-sm font-medium text-gray-700" %}
+{% set hint = "text-xs leading-5 text-gray-500" %}
+{% set card = "rounded-xl border border-gray-200 bg-white shadow-2xs" %}
+{% set card_header = "flex items-center gap-x-2 border-b border-gray-200 px-4 py-2.5" %}
+{% set card_title = "text-sm font-semibold text-gray-800" %}
+{% set section_title = "text-[11px] font-semibold uppercase tracking-wide text-gray-500" %}
+{% set panel = "flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xs" %}
+{% set panel_body = "min-h-0 flex-1 space-y-4 overflow-y-auto bg-gray-50 p-4" %}
+{% set save_bar = "flex shrink-0 items-center gap-x-2.5 border-t border-gray-200 px-4 py-3" %}
+{% set segmented = "flex rounded-lg bg-gray-100 p-0.5" %}
+{% set save_as = "flex shrink-0 rounded-lg bg-gray-100 p-0.5" %}
+{% set save_as_segment = "flex cursor-pointer items-center gap-x-1.5 whitespace-nowrap rounded-md px-2.5 py-1.5 text-[13px] font-medium text-gray-500 has-checked:bg-white has-checked:font-semibold has-checked:text-gray-900 has-checked:shadow-xs" %}
+{% set segment = "flex flex-1 cursor-pointer items-center justify-center gap-x-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-gray-500 has-checked:bg-white has-checked:font-semibold has-checked:text-gray-900 has-checked:shadow-xs" %}
+{% set badge = "inline-flex items-center gap-x-1 whitespace-nowrap rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600" %}
+
+{% macro icon(name, cls="size-4") -%}
+<svg class="{{ cls }} shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+{%- if name == "plus" %}<path d="M5 12h14"/><path d="M12 5v14"/>
+{%- elif name == "folder" %}<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>
+{%- elif name == "reset" %}<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+{%- elif name == "swap" %}<path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/>
+{%- elif name == "play" %}<polygon points="7 4.5 19.5 12 7 19.5 7 4.5" fill="currentColor" stroke="none"/>
+{%- elif name == "pause" %}<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>
+{%- elif name == "stop" %}<rect x="6" y="6" width="12" height="12" fill="currentColor" stroke="none"/>
+{%- elif name == "left" %}<path d="m15 18-6-6 6-6"/>
+{%- elif name == "right" %}<path d="m9 18 6-6-6-6"/>
+{%- elif name == "chevron" %}<path d="m6 9 6 6 6-6"/>
+{%- elif name == "upload" %}<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>
+{%- elif name == "download" %}<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>
+{%- elif name == "trash" %}<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+{%- elif name == "lock" %}<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+{%- elif name == "alert" %}<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>
+{%- elif name == "info" %}<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+{%- elif name == "check" %}<path d="M20 6 9 17l-5-5"/>
+{%- elif name == "check-circle" %}<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
+{%- elif name == "x" %}<path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+{%- elif name == "sparkles" %}<path d="M12 3l1.9 5.8L20 10.7l-6.1 1.9L12 18.5l-1.9-5.9L4 10.7l6.1-1.9Z"/>
+{%- elif name == "wand" %}<path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"/><path d="m14 7 3 3"/>
+{%- elif name == "smile" %}<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/>
+{%- elif name == "tag" %}<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>
+{%- elif name == "search" %}<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+{%- elif name == "bot" %}<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>
+{%- elif name == "library" %}<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>
+{%- elif name == "map" %}<path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/>
+{%- elif name == "audio" %}<path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/>
+{%- elif name == "undo" %}<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>
+{%- elif name == "redo" %}<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"/>
+{%- elif name == "eye" %}<path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0"/><circle cx="12" cy="12" r="3"/>
+{%- elif name == "fit" %}<path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+{%- elif name == "save" %}<path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/>
+{%- elif name == "hand" %}<path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+{%- elif name == "lasso" %}<path d="M7 22a5 5 0 0 1-2-4"/><path d="M3.3 14A6.8 6.8 0 0 1 2 10c0-4.4 4.5-8 10-8s10 3.6 10 8-4.5 8-10 8a12 12 0 0 1-5-1"/><path d="M5 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+{%- elif name == "square" %}<rect width="18" height="18" x="3" y="3" rx="2"/>
+{%- elif name == "brush" %}<path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/>
+{%- elif name == "wall" %}<path d="M3 17l6-6 4 4 8-8"/>
+{%- elif name == "polygon" %}<path d="M12 2 22 9l-4 13H6L2 9z"/>
+{%- elif name == "history" %}<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>
+{%- elif name == "menu" %}<line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/>
+{%- endif -%}
+</svg>
+{%- endmacro %}
+
+{# Save as: what Save writes. Base is the whole robot (waist and both arms). #}
+{% macro save_as_choice(name) %}
+<div class="{{ save_as }}" role="radiogroup" aria-label="Save as" data-save-as>
+  {% for value, label, dot in [("base", "Base", "bg-gray-500"), ("left_arm", "Left arm", "bg-blue-600"), ("right_arm", "Right arm", "bg-orange-500")] %}
+  <label class="{{ save_as_segment }}">
+    <input type="radio" name="{{ name }}" value="{{ value }}" class="sr-only"{% if loop.first %} checked{% endif %} />
+    <span class="size-2 rounded-full {{ dot }}"></span>{{ label }}
+  </label>
+  {% endfor %}
+</div>
+{% endmacro %}

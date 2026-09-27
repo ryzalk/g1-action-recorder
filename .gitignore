@@ -9,8 +9,13 @@ __pycache__/
 .vscode/
 node_modules/
 
-# Generated runtime data
-data/pose_previews/*
-!data/pose_previews/.gitkeep
-data/action_previews/*
-!data/action_previews/.gitkeep
+
+# Logs and demo output
+output/
+data/.trash/
+
+# Maps are large binary packages (point clouds); keep them out of git
+data/maps/
+
+# Voice samples: made again with component/speech_generation/voice_samples.py --build
+data/tts/sample/

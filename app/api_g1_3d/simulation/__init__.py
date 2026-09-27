@@ -1,1 +1,0 @@
-"""Simulation state API domain."""

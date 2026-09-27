@@ -1,0 +1,56 @@
+{% import "ui.html" as ui %}
+<section data-page="action" data-title="Build action" data-hint="List poses in order with how long to move into each and hold it. Every action starts and ends at {{ home }}." class="hidden min-h-0 flex-1 flex-col">
+  <div class="{{ ui.panel }}">
+    <div class="flex shrink-0 gap-x-2 border-b border-gray-200 p-4">
+      <div class="relative flex-1">
+        <span class="pointer-events-none absolute start-3 top-2.5 text-gray-400">{{ ui.icon("folder") }}</span>
+        <select id="action-open" class="{{ ui.input }} ps-9" aria-label="Open a saved action"></select>
+      </div>
+      <button id="action-new" type="button" class="{{ ui.button }}">{{ ui.icon("plus") }}New</button>
+    </div>
+
+    <div class="{{ ui.panel_body }}">
+      <div class="{{ ui.card }} overflow-hidden">
+        <div class="{{ ui.card_header }}">
+          <h3 class="{{ ui.card_title }}">Steps</h3>
+          <span id="action-count" class="{{ ui.badge }}"></span>
+        </div>
+        <table class="w-full table-fixed text-[13px]">
+          <thead class="bg-gray-50 text-[11px] uppercase tracking-wide text-gray-500">
+            <tr>
+              <th class="w-10 py-2 ps-4 text-start font-semibold">#</th>
+              <th class="py-2 text-start font-semibold">Pose</th>
+              <th class="w-18 py-2 pe-2 text-end font-semibold">Move s</th>
+              <th class="w-18 py-2 pe-2 text-end font-semibold">Hold s</th>
+              <th class="w-24"></th>
+            </tr>
+          </thead>
+          <tbody id="action-steps" class="divide-y divide-gray-200 border-t border-gray-200"></tbody>
+        </table>
+        <div class="flex gap-x-2 border-t border-gray-200 bg-gray-50 px-4 py-2.5">
+          <select id="action-add-pose" class="{{ ui.input }} py-1.5" aria-label="Pose to add"></select>
+          <button id="action-add" type="button" class="{{ ui.small_button }}">{{ ui.icon("plus", "size-3.5") }}Add</button>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-x-4 text-[13px] text-gray-500">
+          <span>Total <span id="action-total" class="font-semibold tabular-nums text-gray-900">0.0</span> s</span>
+          <label class="flex items-center gap-x-2">Sample rate
+            <input id="action-sample-hz" type="number" min="1" step="1" class="{{ ui.small_input }} w-16 py-1.5 text-[13px]" /> Hz
+          </label>
+        </div>
+        <button id="action-preview" type="button" class="{{ ui.button }}">{{ ui.icon("play", "size-3.5") }}Preview</button>
+      </div>
+    </div>
+
+    <div class="shrink-0 space-y-1.5 border-t border-gray-200 px-4 py-3">
+      <div class="flex items-center gap-x-2.5">
+        <label for="action-name" class="text-[13px] font-medium text-gray-700">Name</label>
+        <input id="action-name" data-enter="action-save" class="{{ ui.input }}" placeholder="Action name, e.g. wave_left" autocomplete="off" />
+        <button id="action-save" type="button" class="{{ ui.primary }}">Save</button>
+      </div>
+      <p id="action-saved" class="hidden items-center gap-x-1.5 text-xs text-gray-500">{{ ui.icon("check-circle", "size-3.5 text-green-500") }}Saved: definition and trajectory · <a class="font-medium text-blue-600 hover:underline" href="#" download title="The definition, the trajectory and every pose it uses, laid out like data/">Export .zip</a></p>
+    </div>
+  </div>
+</section>

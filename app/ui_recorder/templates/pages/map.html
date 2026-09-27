@@ -1,0 +1,220 @@
+{% import "ui.html" as ui %}
+{% set tool_button = "flex items-center gap-x-1.5 rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs font-medium text-gray-800 hover:bg-gray-50 data-[active=true]:border-blue-600 data-[active=true]:bg-blue-600 data-[active=true]:text-white" %}
+{% set switch = "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full bg-gray-300 transition-colors has-checked:bg-blue-600" %}
+{% set knob = "pointer-events-none absolute start-0.5 top-0.5 size-4 rounded-full bg-white shadow-xs transition-transform peer-checked:translate-x-4" %}
+{% macro toggle(id, label, checked, note="", attrs="") -%}
+<label class="flex items-start justify-between gap-x-3">
+  <span><span class="block text-[13px] text-gray-700">{{ label }}</span>{% if note %}<span class="block text-[11px] text-gray-400">{{ note }}</span>{% endif %}</span>
+  <span class="{{ switch }}"><input {% if id %}id="{{ id }}"{% endif %} {{ attrs|safe }} type="checkbox" class="peer sr-only"{% if checked %} checked{% endif %} /><span class="{{ knob }}"></span></span>
+</label>
+{%- endmacro %}
+{% macro band(id, label) -%}
+<div>
+  <div class="mb-1 flex justify-between text-xs text-gray-600"><span>{{ label }}</span><span class="font-medium tabular-nums text-gray-900"><span id="{{ id }}-lo-value"></span> – <span id="{{ id }}-hi-value"></span> m</span></div>
+  <div class="grid grid-cols-2 gap-x-2">
+    <input id="{{ id }}-lo" type="range" min="0" max="2.5" step="0.05" class="h-1.5 accent-blue-600" aria-label="{{ label }} from" />
+    <input id="{{ id }}-hi" type="range" min="0" max="2.5" step="0.05" class="h-1.5 accent-blue-600" aria-label="{{ label }} to" />
+  </div>
+</div>
+{%- endmacro %}
+<section data-page="map" data-wide="true" data-title="Map" data-hint="Clean ghosts out of a G1 map, add obstacles, then save it and download its files as a .zip." class="hidden min-h-0 flex-1 flex-col gap-y-3">
+  <div class="flex shrink-0 flex-wrap items-center gap-2 {{ ui.card }} px-3 py-2">
+    <span class="flex items-center gap-x-2 text-blue-600">{{ ui.icon("map") }}<span id="map-name" class="text-sm font-semibold text-gray-900">No map</span></span>
+    <span id="map-size" class="text-xs text-gray-500"></span>
+    <button id="map-open" type="button" class="{{ ui.small_button }}">{{ ui.icon("folder", "size-3.5") }}Open map…</button>
+    <span id="map-dirty" class="invisible inline-flex items-center gap-x-1.5 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800"><span class="size-1.5 rounded-full bg-amber-600"></span>Unsaved changes</span>
+    <span class="ms-auto flex flex-wrap items-center gap-1.5">
+      <button id="map-undo" type="button" class="{{ ui.small_button }}" title="Ctrl+Z" disabled>{{ ui.icon("undo", "size-3.5") }}Undo</button>
+      <button id="map-redo" type="button" class="{{ ui.small_button }}" title="Ctrl+Shift+Z" disabled>{{ ui.icon("redo", "size-3.5") }}Redo</button>
+      <span class="mx-1 h-5 w-px bg-gray-200"></span>
+      <button id="map-compare" type="button" class="{{ ui.small_button }}" title="Shows only the original grid while held">{{ ui.icon("eye", "size-3.5") }}Hold for original</button>
+      <button id="map-fit" type="button" class="{{ ui.small_button }}">{{ ui.icon("fit", "size-3.5") }}Fit</button>
+      <button id="map-save" type="button" class="{{ ui.small_primary }}" title="Ctrl+S · saves the folder and downloads its files as a .zip">{{ ui.icon("save", "size-3.5") }}Save &amp; export</button>
+    </span>
+  </div>
+
+  <div class="flex min-h-0 flex-1 gap-3 max-lg:flex-col">
+    <aside class="flex min-h-0 w-68 shrink-0 flex-col overflow-hidden {{ ui.card }} max-lg:h-80 max-lg:w-full">
+      <div class="flex gap-x-0.5 border-b border-gray-200 p-2" role="tablist">
+        {% for tab, label in [("tools", "Tools"), ("check", "Check"), ("layers", "Layers"), ("history", "History")] %}
+        <button type="button" data-map-tab="{{ tab }}" class="flex items-center gap-x-1 rounded-lg px-2 py-1.5 text-xs font-medium text-gray-500 data-[active=true]:bg-gray-100 data-[active=true]:font-semibold data-[active=true]:text-gray-900">{{ label }}{% if tab == "check" %}<span id="map-ghost-badge" class="rounded-full bg-gray-100 px-1.5 text-[11px]"></span>{% elif tab == "history" %}<span id="map-history-badge" class="rounded-full bg-gray-100 px-1.5 text-[11px]"></span>{% endif %}</button>
+        {% endfor %}
+      </div>
+
+      <div data-map-pane="tools" class="min-h-0 flex-1 space-y-4 overflow-y-auto p-3.5">
+        <button type="button" data-tool="pan" class="{{ tool_button }}">{{ ui.icon("hand", "size-3.5") }}Pan</button>
+        <div class="space-y-2">
+          <p class="{{ ui.section_title }}">Erase ghosts</p>
+          <p class="text-xs text-gray-500">Clears cells and deletes points. Preview first.</p>
+          <div class="grid grid-cols-2 gap-1.5">
+            {% for tool, label, icon in [("lasso_erase", "Lasso", "lasso"), ("rect_erase", "Rectangle", "square"), ("brush_erase", "Brush", "brush")] %}
+            <button type="button" data-tool="{{ tool }}" class="{{ tool_button }}">{{ ui.icon(icon, "size-3.5") }}{{ label }}</button>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="space-y-2">
+          <p class="{{ ui.section_title }}">Add obstacles</p>
+          <p class="text-xs text-gray-500">Grid only. Applies at once.</p>
+          <div class="grid grid-cols-2 gap-1.5">
+            {% for tool, label, icon in [("polyline_wall", "Wall", "wall"), ("polygon_fill", "Polygon", "polygon"), ("rect_fill", "Rectangle", "square"), ("obstacle_brush", "Brush", "brush")] %}
+            <button type="button" data-tool="{{ tool }}" class="{{ tool_button }}">{{ ui.icon(icon, "size-3.5") }}{{ label }}</button>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="space-y-3">
+          <p class="{{ ui.section_title }}">Erase options</p>
+          <label class="flex items-center gap-x-2 whitespace-nowrap text-[13px] text-gray-700">Erase to
+            <select id="map-erase-value" class="{{ ui.input }} py-1.5 text-[13px]"><option value="254">Free (254)</option><option value="205">Unknown (205)</option></select>
+          </label>
+          {{ toggle("map-apply-pcd", "Also delete points", true) }}
+          {{ toggle("map-keep-protected", "Keep protected points", true, "Walls and pillars taller than 2.1 m") }}
+          {{ band("map-erase-z", "map.pcd height") }}
+          {{ band("map-ground-z", "ground_map height") }}
+          <p class="text-[11px] text-gray-400">Heights are above the floor under each cell.</p>
+        </div>
+        <div class="space-y-3">
+          <p class="{{ ui.section_title }}">Sizes</p>
+          {% for id, label, low, high in [("map-brush-radius", "Brush radius", 0.05, 1.0), ("map-wall-width", "Wall width", 0.05, 0.5)] %}
+          <div>
+            <div class="mb-1 flex justify-between text-xs text-gray-600"><span>{{ label }}</span><span class="font-medium tabular-nums text-gray-900"><span id="{{ id }}-value"></span> m</span></div>
+            <input id="{{ id }}" type="range" min="{{ low }}" max="{{ high }}" step="0.05" class="h-1.5 w-full accent-blue-600" aria-label="{{ label }}" />
+          </div>
+          {% endfor %}
+        </div>
+        <div class="space-y-2">
+          <p class="{{ ui.section_title }}">Drawing aids</p>
+          <p class="text-xs text-gray-500">Main direction θ₀ = <span id="map-direction-text">—</span>°; hold Shift to turn snapping off.</p>
+          {% for id, label, checked in [("map-snap-angle", "Snap walls and polygons to θ₀ + k·90°", true), ("map-snap-diagonal", "Also snap to 45°", false), ("map-snap-point", "Snap to end points and walls", true), ("map-rect-aligned", "Rectangles along θ₀", true)] %}
+          <label class="flex items-start gap-x-2 text-xs text-gray-700"><input id="{{ id }}" type="checkbox" class="mt-0.5 rounded-sm border-gray-300 accent-blue-600"{% if checked %} checked{% endif %} />{{ label }}</label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div data-map-pane="check" class="hidden min-h-0 flex-1 space-y-3 overflow-y-auto p-3.5">
+        <p id="map-candidate-note" class="text-xs text-gray-500"></p>
+        <div class="grid grid-cols-2 gap-1.5">
+          {% for kind, label in [("ghost", "Ghosts"), ("missing", "Gaps")] %}
+          <button type="button" data-kind="{{ kind }}" class="{{ tool_button }} justify-center">{{ label }}<span id="map-{{ kind }}-count" class="rounded-full bg-black/10 px-1.5 text-[11px]"></span></button>
+          {% endfor %}
+        </div>
+        <ol id="map-candidates" class="divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 text-xs"></ol>
+        <details class="group space-y-3">
+          <summary class="flex cursor-pointer select-none items-center gap-x-1.5 text-[13px] font-semibold text-gray-700 marker:content-none"><span class="transition-transform group-open:rotate-90">{{ ui.icon("right", "size-3.5") }}</span>Detection settings</summary>
+          {{ band("map-cand-z", "Point height above floor") }}
+          {% for id, label, low, high in [("map-cand-min-points", "Points per cell at least", 1, 10), ("map-cand-min-cells", "Cells per candidate at least", 1, 50)] %}
+          <div>
+            <div class="mb-1 flex justify-between text-xs text-gray-600"><span>{{ label }}</span><span id="{{ id }}-value" class="font-medium tabular-nums text-gray-900"></span></div>
+            <input id="{{ id }}" type="range" min="{{ low }}" max="{{ high }}" step="1" class="h-1.5 w-full accent-blue-600" aria-label="{{ label }}" />
+          </div>
+          {% endfor %}
+        </details>
+      </div>
+
+      <div data-map-pane="layers" class="hidden min-h-0 flex-1 space-y-4 overflow-y-auto p-3.5">
+        <div class="space-y-2.5">
+          <p class="{{ ui.section_title }}">Layers</p>
+          {% for key, label, checked in [("original", "Original grid", false), ("current", "Current grid", true), ("projection", "Point cloud projection", true), ("diff", "Changes", true), ("protection", "Protected zone", false), ("candidates", "Candidate outlines", true), ("tour", "Tour points", true)] %}
+          {{ toggle("", label, checked, "", 'data-layer="' ~ key ~ '"') }}
+          {% endfor %}
+          <div class="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-gray-500">
+            <span class="flex items-center gap-x-1"><span class="size-2 rounded-full bg-teal-500"></span>Cleared</span>
+            <span class="flex items-center gap-x-1"><span class="size-2 rounded-full bg-orange-500"></span>Added</span>
+            <span class="flex items-center gap-x-1"><span class="size-2 rounded-full bg-violet-500"></span>Other</span>
+          </div>
+        </div>
+        <div class="space-y-2.5">
+          <p class="{{ ui.section_title }}">Point cloud projection</p>
+          <select id="map-projection-source" class="{{ ui.input }} py-1.5 text-[13px]"><option value="map">map.pcd (localization)</option><option value="ground">ground_map.pcd</option></select>
+          {{ band("map-proj-z", "Height above floor") }}
+          <p class="text-[11px] text-gray-400">Darker red: more points in the band.</p>
+        </div>
+        <div class="space-y-2">
+          <p class="{{ ui.section_title }}">Map info</p>
+          <dl id="map-info" class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs"></dl>
+        </div>
+      </div>
+
+      <div data-map-pane="history" class="hidden min-h-0 flex-1 space-y-3 overflow-y-auto p-3.5">
+        <p class="text-xs text-gray-500">Click a step to go back to it; later steps become redo.</p>
+        <ol id="map-history" class="space-y-1 text-xs"></ol>
+        <button id="map-restore" type="button" class="{{ ui.small_button }}" disabled>{{ ui.icon("history", "size-3.5") }}Restore original…</button>
+        <p class="text-[11px] text-gray-400">Available after the first save; puts back the *.orig files.</p>
+      </div>
+    </aside>
+
+    <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden {{ ui.card }} max-lg:h-[28rem] max-lg:flex-none">
+      <div id="map-viewport" class="relative min-h-0 flex-1 touch-none select-none overflow-clip bg-gray-100">
+        <div id="map-stage" class="absolute left-0 top-0 origin-top-left [image-rendering:pixelated]">
+          <img id="map-layer-original" alt="" class="pointer-events-none absolute inset-0 hidden" />
+          <img id="map-layer-current" alt="" class="pointer-events-none absolute inset-0" />
+          <img id="map-layer-projection" alt="" class="pointer-events-none absolute inset-0" />
+          <img id="map-layer-protection" alt="" class="pointer-events-none absolute inset-0 hidden" />
+          <img id="map-layer-diff" alt="" class="pointer-events-none absolute inset-0" />
+        </div>
+        <canvas id="map-overlay" class="pointer-events-none absolute inset-0 size-full"></canvas>
+        <div class="absolute start-2.5 top-2.5 flex overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xs">
+          <button id="map-zoom-in" type="button" class="flex size-7 items-center justify-center text-gray-700 hover:bg-gray-50" aria-label="Zoom in">{{ ui.icon("plus", "size-3.5") }}</button>
+          <button id="map-zoom-out" type="button" class="flex size-7 items-center justify-center border-s border-gray-200 text-gray-700 hover:bg-gray-50" aria-label="Zoom out"><svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M5 12h14"/></svg></button>
+        </div>
+        <div id="map-empty" class="absolute inset-0 hidden items-center justify-center text-sm text-gray-500">Open a map to start.</div>
+        <div id="map-pending" class="absolute inset-x-3 bottom-3 z-10 mx-auto hidden max-w-md space-y-2 rounded-xl border border-gray-200 bg-white p-3 shadow-xl">
+          <p class="flex items-center gap-x-2"><span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">Pending</span><span id="map-pending-title" class="text-[13px] font-semibold text-gray-900"></span></p>
+          <p id="map-pending-text" class="text-xs text-gray-600"></p>
+          <div class="flex justify-end gap-x-2">
+            <button id="map-cancel" type="button" class="{{ ui.small_button }}">Cancel <kbd class="text-gray-400">Esc</kbd></button>
+            <button id="map-confirm" type="button" class="{{ ui.small_primary }}">Confirm <kbd class="text-blue-200">Enter</kbd></button>
+          </div>
+        </div>
+      </div>
+      <div class="flex h-8 shrink-0 items-center gap-x-3.5 overflow-hidden whitespace-nowrap border-t border-gray-200 px-3 text-xs">
+        <span id="map-cursor-world" class="tabular-nums text-gray-700">x —  y —</span>
+        <span id="map-cursor-pixel" class="tabular-nums text-gray-500">row —  col —</span>
+        <span id="map-cursor-value" class="tabular-nums text-gray-500">value —</span>
+        <span id="map-tool-hint" class="min-w-0 flex-1 truncate text-gray-400"></span>
+        <span id="map-zoom-level" class="tabular-nums text-gray-500"></span>
+      </div>
+    </div>
+
+    <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-gray-900 shadow-2xs max-lg:h-[28rem] max-lg:flex-none">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 bg-white px-3 py-2 text-xs text-gray-700">
+        {% for key, label in [("map", "map.pcd"), ("ground", "ground_map.pcd"), ("grid", "Grid texture")] %}
+        <label class="flex items-center gap-x-1.5"><input type="checkbox" data-scene="{{ key }}" class="rounded-sm border-gray-300 accent-blue-600" />{{ label }}</label>
+        {% endfor %}
+        <label class="flex items-center gap-x-1.5"><input id="map-follow" type="checkbox" class="rounded-sm border-gray-300 accent-blue-600" checked />Follow preview</label>
+      </div>
+      <iframe id="map-viewer" title="Map 3D view" class="min-h-0 w-full flex-1 border-0"></iframe>
+      <div class="flex flex-wrap gap-x-3 bg-gray-800 px-3 py-1.5 text-xs text-gray-300">
+        <span class="flex items-center gap-x-1.5"><span class="size-2 rounded-full bg-red-600"></span>To delete</span>
+        <span class="flex items-center gap-x-1.5"><span class="size-2 rounded-full bg-fuchsia-500"></span>Protected</span>
+        <span class="flex items-center gap-x-1.5"><span class="size-2 rounded-full bg-teal-600"></span>Height above floor</span>
+      </div>
+    </div>
+  </div>
+
+  <dialog id="map-open-dialog" class="m-auto w-[32rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl bg-white p-0 shadow-xl backdrop:bg-gray-900/50">
+    <div class="flex items-center justify-between border-b border-gray-200 px-5 py-3.5">
+      <h3 class="text-base font-semibold text-gray-900">Open map</h3>
+      <button id="map-open-close" type="button" class="rounded-md p-1 text-gray-400 hover:bg-gray-100" aria-label="Close">{{ ui.icon("x") }}</button>
+    </div>
+    <div class="space-y-4 p-5">
+      <div class="space-y-2">
+        <p class="text-[13px] font-semibold text-gray-700">Maps in <span id="map-root" class="font-normal text-gray-500"></span></p>
+        <ul id="map-list" class="max-h-64 space-y-2 overflow-y-auto"></ul>
+      </div>
+      <div class="space-y-2">
+        <p class="text-[13px] font-semibold text-gray-700">Upload a map</p>
+        <p class="text-xs text-gray-500">The .zip of a map folder, as Save &amp; export downloads it. Checksums are checked, then it opens as a new folder. An existing map with the same name is never replaced; the new one is called name-2.</p>
+        <label class="flex cursor-pointer flex-col items-center justify-center gap-y-1 rounded-lg border border-dashed border-gray-300 bg-gray-50 px-3 py-4 text-center hover:border-blue-400">
+          <span class="text-gray-400">{{ ui.icon("upload", "size-5") }}</span>
+          <span id="map-upload-label" class="text-[13px] font-medium text-gray-700">Choose a map .zip</span>
+          <input id="map-upload-file" type="file" accept=".zip" class="sr-only" />
+        </label>
+      </div>
+      <p id="map-open-status" class="hidden text-xs text-gray-500">Opening… (reading the point clouds takes a few seconds)</p>
+    </div>
+    <div class="flex justify-end gap-x-2 bg-gray-50 px-5 py-3">
+      <button id="map-open-cancel" type="button" class="{{ ui.button }}">Cancel</button>
+      <button id="map-upload" type="button" class="{{ ui.primary }}" disabled>Upload and open</button>
+    </div>
+  </dialog>
+</section>
