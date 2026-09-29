@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: g1-3d
-          image: harbor.chs.gto-stc-aida.com/sysadmin-pub/g1-3d:v0.0.1
+          image: harbor.chs.gto-stc-aida.com/sysadmin-pub/g1-3d:v0.0.2
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -71,4 +71,11 @@ spec:
             limits:
               cpu: "2"
               memory: 4Gi
+          volumeMounts:
+            - name: g1-3d-data
+              mountPath: /app/data
+      volumes:
+        - name: g1-3d-data
+          persistentVolumeClaim:
+            claimName: g1-3d-pvc-01
       restartPolicy: Always
